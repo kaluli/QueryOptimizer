@@ -10,51 +10,53 @@
 
 	<div class="container">
 		<div class="jumbotron">
-			<div class="row">																	 	  												
-				<div class="col-md-12" id="cuadro">
-				<div class="form-group">
-					<h3>Seleccionar Base de Datos</h3>
-					<select id="config" name="configId" class="form-control">
-				    <option value=""></option>												  				
-					<c:forEach var="config" items="${config}">			            
-					<option value="${config.id}" >${config.name}</option>
-				    </c:forEach>
-					</select>
-				</div>				
-				<h3>Analizar Consulta SQL</h3>
-				<div class="buttons">
-					<div class="btn-group">
-				  		 <button type="button" class="btn btn-default">SELECT</button>
-			  		</div>
-				  	<div class="btn-group">			  	
-				  		 <button type="button" class="btn btn-default">UPDATE</button>
-				  	</div>
-				  	<div class="btn-group">			  	
-				  		 <button type="button" class="btn btn-default">DELETE</button>
-				  	</div>
-				  	<div class="btn-group">			  	
-				  		 <button type="button" class="btn btn-default">INSERT</button>
+			<div class="row">						
+				<form:form id="enviarQuery" method="post" commandName="query" > 											 	  																					
+					<div class="col-md-12" id="cuadro">
+						<div class="form-group">
+							<h3>Seleccionar Base de Datos</h3>
+							<select id="config" name="configId" class="form-control" required>
+						    <option value=""></option>												  				
+							<c:forEach var="config" items="${config}">			            
+							<option value="${config.id}" >${config.name}</option>
+						    </c:forEach>
+							</select>
+						</div>				
+						<h3>Analizar Consulta SQL</h3>
+						<div class="buttons">
+							<div class="btn-group">
+						  		 <button type="button" class="btn btn-default">SELECT</button>
+					  		</div>
+						  	<div class="btn-group">			  	
+						  		 <button type="button" class="btn btn-default">UPDATE</button>
+						  	</div>
+						  	<div class="btn-group">			  	
+						  		 <button type="button" class="btn btn-default">DELETE</button>
+						  	</div>
+						  	<div class="btn-group">			  	
+						  		 <button type="button" class="btn btn-default">INSERT</button>
+							</div>
+						  	<div class="btn-group">			  	
+						  		 <button type="button" class="btn btn-default">CREATE</button>
+							</div>			
+						</div>			
+						<div class="query-box">
+							<textarea name="query" value="query" class="form-control" rows="5" required></textarea>																		  	
+						</div>					
+						<div id="left">
+							<button type="submit" class="btn btn-primary">Analizar</button>
+						</div>
 					</div>
-				  	<div class="btn-group">			  	
-				  		 <button type="button" class="btn btn-default">CREATE</button>
-					</div>			
-				</div>			
-				<form>
-					<div class="query-box">
-						<textarea class="form-control" rows="5"></textarea>																		  	
-					</div>					
-					<div id="left">
-						<button type="submit" class="btn btn-primary">Analizar</button>
-					</div>
-				</form>
-				</div>	
-				<div class="col-md-6">
-				Resultados:
-				
-				</div>
+				</form:form>	
+			</div>	
+				 
+			<div class="col-md-6">
+			Resultados:
+			
+			</div>
 				
 					    		
-			</div>					            				     
+							            				     
   	  	</div>					  
 	
 	</div>		

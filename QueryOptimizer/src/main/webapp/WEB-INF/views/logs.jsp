@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/views/includes/header.jsp" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>  
-<title>Configuración</title>
+<title>Logs</title>
 </head>
 <body>
 
@@ -10,7 +10,15 @@
 		<div class="jumbotron">
 			<div class="row">																						 	  			
 				<div class="col-md-12" id="cuadro">
-				Logs...<br/>toDo						
+					Log de: <c:out value="${user.username}"/>
+					<c:forEach var="consulta" items="${user.consultas}">
+						<div class="logs">
+							
+							<strong><c:out value="${consulta.query}"/></strong>
+							<c:out value="${consulta.created}"/>
+							<br/>							
+						</div>
+					</c:forEach>				
 				</div>				
 			</div>	
 				

@@ -55,11 +55,13 @@ public class FileUploadController {
                 	BufferedOutputStream stream =
                         new BufferedOutputStream(new FileOutputStream(path + new File(name)));                                            	
             	
-            		Configuracion configuracion = new Configuracion();
-	            	configuracion.setFile(file.getOriginalFilename());
-	            	configuracion.setIduser(usu.getId());
-	            	configuracion.setName(file.getOriginalFilename());
-	            	configuracion.setCreated(date);
+            		Configuracion configuracion = new Configuracion(
+            				usu.getId(),
+            				file.getOriginalFilename(),            				
+            				file.getOriginalFilename(),
+            				date
+        				);
+	            	
 	            	configuracionService.save(configuracion);
 	            	stream.write(bytes);
 	                stream.close();

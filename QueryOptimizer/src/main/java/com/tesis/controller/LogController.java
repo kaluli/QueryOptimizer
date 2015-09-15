@@ -31,6 +31,7 @@ public class LogController {
 		
 			String nombre_user = session.getAttribute("userSession").toString();
 			User usu = userService.findByUserName(nombre_user);
+			
 			model.addAttribute("user", usu);
 			model.addAttribute("logueado", true);	
 			return "logs";

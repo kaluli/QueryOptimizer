@@ -8,8 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tesis.model.Configuracion;
 import com.tesis.repository.ConfiguracionRepository;
 
-
-
 @Service("configuracionService")
 public class ConfiguracionServiceImpl implements ConfiguracionService {
 

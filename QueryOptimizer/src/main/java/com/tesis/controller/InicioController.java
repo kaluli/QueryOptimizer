@@ -1,5 +1,7 @@
 package com.tesis.controller;
 
+import java.util.Date;
+
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -14,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-
 import com.tesis.model.Configuracion;
-//import com.tesis.model.Database;
+import com.tesis.model.Consulta;
 import com.tesis.model.User;
+import com.tesis.service.ConsultaService;
 import com.tesis.service.UserService;
 
 
@@ -27,6 +29,9 @@ public class InicioController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private ConsultaService consultaService;
 	
 	@RequestMapping(value="/inicio", method=RequestMethod.GET)	
 	public String inicio(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {		
@@ -52,12 +57,18 @@ public class InicioController {
 	}
 
 	@RequestMapping(value="/inicio", method=RequestMethod.POST)
-	//public String inicio(@Valid @ModelAttribute("configuracion") Database configuracion, BindingResult result, HttpSession session, Model model ) {
-	public String inicio(BindingResult result, HttpSession session, Model model ) {
-		String nombre_user = session.getAttribute("userSession").toString();
-		User usu = new User();					
-		usu = userService.findByUserName(nombre_user);
-		model.addAttribute("user", usu);
+	public String inicio(@RequestParam("query") String query, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
+    	Date date = new Date();
+		User usu = userService.findByUserName(session.getAttribute("userSession").toString());						
+		
+		// Guarda en log
+		Consulta consulta = new Consulta(query,usu.getId(),configId,date);		
+		consultaService.save(consulta);
+		consulta.ejecutarConsulta(consulta);
+		
+		model.addAttribute("consultas", usu.getConsultas().size());
+		model.addAttribute("user", usu);		
+		
 		return "redirect:inicio.html";
 	}
 	

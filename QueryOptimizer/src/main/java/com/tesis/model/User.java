@@ -67,6 +67,10 @@ public class User {
 	@OneToMany(targetEntity=Configuracion.class, mappedBy="iduser", fetch=FetchType.EAGER)
 	@OrderBy("created DESC") 
 	private List<Configuracion> configuraciones;   
+	
+	@OneToMany(targetEntity=Consulta.class, mappedBy="iduser", fetch=FetchType.EAGER)
+	@OrderBy("created DESC") 
+	private List<Consulta> consultas;   
 		
 	public List<Configuracion> getConfiguraciones() {
 		return this.configuraciones;
@@ -74,4 +78,12 @@ public class User {
 	public void setConfiguraciones(List<Configuracion> configuraciones) {
 		this.configuraciones = configuraciones;
 	}
+	public List<Consulta> getConsultas() {
+		return consultas;
+	}
+	public void setConsultas(List<Consulta> consultas) {
+		this.consultas = consultas;
+	}
+	
+	
 }

@@ -34,6 +34,19 @@ public class Configuracion {
 	@DateTimeFormat(pattern="dd/MM/yyyy")
 	private Date created;
 
+	public Configuracion(){
+	}
+	
+	public Configuracion(int iduser, String name, String file, Date created) {
+		super();
+		this.iduser = iduser;
+		this.name = name;
+		this.file = file;
+		this.created = created;
+	}
+
+
+
 	public int getId() {
 		return id;
 	}
