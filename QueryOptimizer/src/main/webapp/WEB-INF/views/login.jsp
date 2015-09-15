@@ -35,7 +35,7 @@
 
 		<div class="navbar-collapse collapse navbar-responsive-collapse">
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/tesis">Inicio</a></li>
+				<li><a href="/trabajofinal">Inicio</a></li>
 				<li><a href="registro.html">Registro</a></li>
 				<li class="active"><a href="login.html">Iniciar Sesión</a></li>			
 			</ul>

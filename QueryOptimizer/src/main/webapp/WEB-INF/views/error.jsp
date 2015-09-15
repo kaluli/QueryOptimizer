@@ -25,7 +25,7 @@
 				<input type="text" class="form-control" placeholder="Search">
 			</form>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/tesis">Inicio</a></li>
+				<li><a href="/trabajofinal">Inicio</a></li>
 				<li><a href="registro.html">registro</a></li>
 				<li class="active"><a href="login.html">Iniciar Sesión</a></li>				
 			</ul>

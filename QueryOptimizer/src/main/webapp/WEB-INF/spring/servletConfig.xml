@@ -10,7 +10,7 @@
 
 <mvc:annotation-driven/>
 
-<context:component-scan base-package="com.tesis" />
+<context:component-scan base-package="com.trabajofinal" />
 
 <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 	<property name="prefix" value="/WEB-INF/views/" />
