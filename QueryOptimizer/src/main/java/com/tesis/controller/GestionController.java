@@ -40,7 +40,7 @@ public class GestionController {
 	    
 	    StringBuilder builder = new StringBuilder();
         BufferedReader reader = null;
-        try {
+        /*try {
             reader = new BufferedReader(new FileReader("1.sql"));
             String line = null;
             while ((line = reader.readLine()) != null)
@@ -51,7 +51,7 @@ public class GestionController {
             closeQuietly(reader);
 
         }
-        
+        */
 	    jt.execute(builder.toString());
 	    return null;
 

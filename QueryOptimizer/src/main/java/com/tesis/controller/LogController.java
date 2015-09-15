@@ -15,8 +15,6 @@ import com.tesis.model.User;
 import com.tesis.model.UserLogin;
 import com.tesis.service.UserService;
 
-
-
 @Controller
 @SessionAttributes("userSession") //Spring obtiene una instancia de la session
 public class LogController {

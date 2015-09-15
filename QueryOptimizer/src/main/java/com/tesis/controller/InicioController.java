@@ -1,6 +1,9 @@
 package com.tesis.controller;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.tesis.model.Configuracion;
 import com.tesis.model.Consulta;
 import com.tesis.model.User;
+import com.tesis.service.ConfiguracionService;
 import com.tesis.service.ConsultaService;
 import com.tesis.service.UserService;
 
@@ -33,6 +37,9 @@ public class InicioController {
 	@Autowired
 	private ConsultaService consultaService;
 	
+	@Autowired
+	private ConfiguracionService configuracionService;
+	
 	@RequestMapping(value="/inicio", method=RequestMethod.GET)	
 	public String inicio(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {		
 		User usu = new User();	
@@ -43,9 +50,6 @@ public class InicioController {
 			int idlogueado = usu.getId();
 			model.addAttribute("logueado", idlogueado);
 		}			
-		
-		//Configuracion configuracion = new Configuracion();		
-		//model.addAttribute("configuracion", configuracion);
 		
 		if(id == null){ //Mi perfil			
 			model.addAttribute("yomismo", true);		
@@ -64,12 +68,20 @@ public class InicioController {
 		// Guarda en log
 		Consulta consulta = new Consulta(query,usu.getId(),configId,date);		
 		consultaService.save(consulta);
-		consulta.ejecutarConsulta(consulta);
+		String db = configuracionService.findById(consulta.getIdconfig()).getName();
+		List<Map<String, Object>> resultados = consulta.gestionarConsulta(consulta, db);
 		
+		Iterator<Map<String, Object>> it = resultados.iterator(); 
+        while (it.hasNext()) { 
+            System.out.println("" + it.next()); 
+        }
+        
+        model.addAttribute("resultados", resultados);
 		model.addAttribute("consultas", usu.getConsultas().size());
-		model.addAttribute("user", usu);		
+		model.addAttribute("user", usu);
+		model.addAttribute("config", usu.getConfiguraciones());		
 		
-		return "redirect:inicio.html";
+		return "inicio";
 	}
 	
 	//RequestParam va a ser requerido

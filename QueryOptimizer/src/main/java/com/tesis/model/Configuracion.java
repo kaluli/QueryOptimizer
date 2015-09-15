@@ -45,8 +45,6 @@ public class Configuracion {
 		this.created = created;
 	}
 
-
-
 	public int getId() {
 		return id;
 	}

@@ -11,7 +11,7 @@
 	<div class="container">
 		<div class="jumbotron">
 			<div class="row">						
-				<form:form id="enviarQuery" method="post" commandName="query" > 											 	  																					
+				<form:form id="enviarQuery" method="POST" commandName="query" > 											 	  																					
 					<div class="col-md-12" id="cuadro">
 						<div class="form-group">
 							<h3>Seleccionar Base de Datos</h3>
@@ -25,37 +25,38 @@
 						<h3>Analizar Consulta SQL</h3>
 						<div class="buttons">
 							<div class="btn-group">
-						  		 <button type="button" class="btn btn-default">SELECT</button>
+						  		 <button type="button" id="button" class="btn btn-default">SELECT</button>
 					  		</div>
 						  	<div class="btn-group">			  	
-						  		 <button type="button" class="btn btn-default">UPDATE</button>
+						  		 <button type="button" id="button" class="btn btn-default">UPDATE</button>
 						  	</div>
 						  	<div class="btn-group">			  	
-						  		 <button type="button" class="btn btn-default">DELETE</button>
+						  		 <button type="button" id="button" class="btn btn-default">DELETE</button>
 						  	</div>
 						  	<div class="btn-group">			  	
-						  		 <button type="button" class="btn btn-default">INSERT</button>
+						  		 <button type="button" id="button" class="btn btn-default">INSERT</button>
 							</div>
 						  	<div class="btn-group">			  	
-						  		 <button type="button" class="btn btn-default">CREATE</button>
+						  		 <button type="button" id="button" class="btn btn-default">CREATE</button>
 							</div>			
 						</div>			
 						<div class="query-box">
-							<textarea name="query" value="query" class="form-control" rows="5" required></textarea>																		  	
+							<textarea name="query" id="query" class="form-control" rows="5" required></textarea>																		  	
 						</div>					
 						<div id="left">
 							<button type="submit" class="btn btn-primary">Analizar</button>
 						</div>
 					</div>
 				</form:form>	
-			</div>	
-				 
-			<div class="col-md-6">
-			Resultados:
-			
-			</div>
+							
+				<div class="col-md-12">
+					Resultados:	<br/>
+					<c:forEach var="resultado" items="${resultados}">
+						${resultado} <br/>
+					</c:forEach>
+				</div>
 				
-					    		
+			</div>			    		
 							            				     
   	  	</div>					  
 	
@@ -73,26 +74,36 @@
 	
 	<script type="text/javascript">
 		$(function() {
-			var yesButton = $("#yesbutton");
-			var progress = $("#doitprogress");		
-			
-			yesButton.click(function() {		
-				yesButton.button("loading");
-
-				var counter = 0;
-				var countDown = function() {
-					counter++;
-					if (counter == 11) {
-						yesButton.button("complete");
-					} else {
-						progress.width(counter * 10 + "%");
-						setTimeout(countDown, 100);
-					}
-				};
-				
-				setTimeout(countDown, 100);
+			$("button#button").on( "click", function() {
+				var query = $(this).text();
+				switch($(this).text()){
+					case "SELECT":
+						query = query + " * FROM table_name WHERE condition;";
+						break;
+					
+					case "UPDATE":
+						query = query + " table_name SET values WHERE condition;";
+						break;
+						
+					case "CREATE":
+						query = query + " DATABASE database_name;";
+						break;
+						
+					case "ALTER":
+						query = query + " TABLE table_name WHERE condition;";
+						break;
+					
+					case "DELETE":
+						query = query + " FROM table_name WHERE condition;";
+						break;			
+						
+					case "INSERT":
+						query = query + " INTO table_name;";
+						break;			
+				}
+				$("#query").val(query);
+				$("#query").focus();
 			});
-			
 		});
 	</script>
 	
