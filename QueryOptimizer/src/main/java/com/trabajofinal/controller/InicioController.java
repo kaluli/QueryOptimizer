@@ -60,10 +60,11 @@ public class InicioController {
 	public String inicio(@RequestParam("query") String query, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
     	Date date = new Date();
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());						
-		Consulta consulta = new Consulta(query,usu.getId(),configId,date);		
-		consultaService.save(consulta);
+		Consulta consulta = new Consulta(query,usu.getId(),configId,date);				
 		String db = configuracionService.findById(consulta.getIdconfig()).getName();
 		model.addAttribute("resultados", consulta.gestionarConsulta(consulta, db));
+		consultaService.save(consulta);
+		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";
 	}

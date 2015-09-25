@@ -8,19 +8,33 @@
 
 	<div class="container">
 		<div class="jumbotron">
-			<div class="row">																						 	  			
-				<div class="col-md-12" id="cuadro">
+			<div class="row">
+					<div class="col-md-6">
 					Log de: <c:out value="${user.username}"/>
+					</div>
+					<div class="col-md-3">
+					Duración
+					</div>
+					<div class="col-md-3">
+					Fecha
+					</div>
+					
 					<c:forEach var="consulta" items="${user.consultas}">
 						<div class="logs">
-							
+							<div class="col-md-6">
 							<strong><c:out value="${consulta.query}"/></strong>
-							<c:out value="${consulta.created}"/>
+							</div>
+							<div class="col-md-3">
+							<fmt:formatNumber type="number" maxFractionDigits="5" value="${consulta.time}" /> segs
+							</div>
+							<div class="col-md-3">
+							<fmt:formatDate value="${consulta.created}" pattern="dd/MM/yyyy HH:mm" />						
+							</div>		
 							<br/>							
 						</div>
 					</c:forEach>				
 				</div>				
-			</div>	
+				
 				
 					    		
 		</div>					            				     

@@ -66,13 +66,15 @@ public class Consulta {
 		jt.execute("SET SESSION query_cache_type=0");
 		jt.execute("SET @@profiling = 0");
 		jt.execute("SET @@profiling_history_size = 0");
-		jt.execute("SET @@profiling_history_size = 100"); 
+		jt.execute("SET @@profiling_history_size = 100");
 	}
 	
-	private Double calcularTiempo(JdbcTemplate jt, Consulta consulta) {
+	private void calcularTiempo(JdbcTemplate jt, Consulta consulta) {
 		jt.execute("SET @@profiling = 1");
 		jt.execute(consulta.getQuery());
-		return jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING WHERE QUERY_ID=1", Double.class);		
+		Double elapsedTime = jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING WHERE QUERY_ID=1", Double.class);
+		consulta.setTime(elapsedTime);
+		this.limpiarCache(jt);
 	}
 	
 		
@@ -85,13 +87,11 @@ public class Consulta {
 		JdbcTemplate jt = new JdbcTemplate(ds);
 		this.limpiarCache(jt);
 		List<Map<String,Object>> resultados = consulta.ejecutarQuery(jt, consulta);
-		consulta.setTime(this.calcularTiempo(jt,consulta));
+		this.calcularTiempo(jt, consulta);
 		return resultados;	
 	}
 	
-	
 
-	
 	public Double getTime() {
 		return time;
 	}
