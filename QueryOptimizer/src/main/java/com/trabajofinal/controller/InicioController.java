@@ -62,7 +62,7 @@ public class InicioController {
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());						
 		Consulta consulta = new Consulta(query,usu.getId(),configId,date);				
 		String db = configuracionService.findById(consulta.getIdconfig()).getName();
-		model.addAttribute("resultados", consulta.gestionarConsulta(consulta, db));
+		model.addAttribute("resultados", consulta.gestionarConsulta(db));
 		consultaService.save(consulta);
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
