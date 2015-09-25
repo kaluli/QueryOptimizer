@@ -29,10 +29,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/tf/QueryOptimizer/libs/weka-stable-3-6/weka/remoteExperimentServer.jar"/>
-	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/tf/QueryOptimizer/libs/weka-stable-3-6/weka/weka.jar"/>
-	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/tf/QueryOptimizer/libs/weka-stable-3-6/weka/weka-src.jar"/>
-	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/tf/QueryOptimizer/libs/ibatis-common-2.jar.zip"/>
-	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/tf/QueryOptimizer/libs/mybatis-3.2.3.jar"/>
+	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/QueryOptimizer/libs/mybatis-3.2.3.jar"/>
+	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/QueryOptimizer/libs/ibatis-common-2.jar.zip"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -17,7 +17,7 @@
 							<h3>Seleccionar Base de Datos</h3>
 							<select id="config" name="configId" class="form-control" required>
 						    <option value=""></option>												  				
-							<c:forEach var="config" items="${config}">			            
+							<c:forEach var="config" items="${user.configuraciones}">			            
 							<option value="${config.id}" >${config.name}</option>
 						    </c:forEach>
 							</select>
@@ -38,12 +38,15 @@
 							</div>
 						  	<div class="btn-group">			  	
 						  		 <button type="button" id="button" class="btn btn-default">CREATE</button>
+							</div>
+							<div class="btn-group">			  	
+						  		 <button type="button" id="button" class="btn btn-default">VER TABLAS</button>
 							</div>			
 						</div>			
 						<div class="query-box">
 							<textarea name="query" id="query" class="form-control" rows="5" required></textarea>																		  	
 						</div>					
-						<div id="left">
+						<div id="right">
 							<button type="submit" class="btn btn-primary">Analizar</button>
 						</div>
 					</div>
@@ -99,7 +102,11 @@
 						
 					case "INSERT":
 						query = query + " INTO table_name;";
-						break;			
+						break;
+						
+					case "VER TABLAS":
+						query = "SHOW TABLES; ";
+						break;
 				}
 				$("#query").val(query);
 				$("#query").focus();

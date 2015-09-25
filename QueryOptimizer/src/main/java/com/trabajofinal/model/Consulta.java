@@ -3,6 +3,7 @@ package com.trabajofinal.model;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
@@ -32,6 +34,8 @@ public class Consulta {
 
 	@NotNull
 	private int idconfig;
+	
+	private Double time;
 	
 	private Date created;
 
@@ -56,16 +60,46 @@ public class Consulta {
 	    return ds;
    	}
 	
-	private List<Map<String,Object>> ejecutarQuery(SingleConnectionDataSource ds, Consulta consulta){
-		JdbcTemplate jt = new JdbcTemplate(ds);	  
-		return jt.queryForList(consulta.getQuery()); 	            			
+	private void limpiarCache(JdbcTemplate jt){
+		jt.execute("RESET QUERY CACHE;");
+		jt.execute("FLUSH QUERY CACHE;");
+		jt.execute("SET SESSION query_cache_type=0");
+		jt.execute("SET @@profiling = 0");
+		jt.execute("SET @@profiling_history_size = 0");
+		jt.execute("SET @@profiling_history_size = 100"); 
+	}
+	
+	private Double calcularTiempo(JdbcTemplate jt, Consulta consulta) {
+		jt.execute("SET @@profiling = 1");
+		jt.execute(consulta.getQuery());
+		return jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING WHERE QUERY_ID=1", Double.class);		
+	}
+	
+		
+	private List<Map<String,Object>> ejecutarQuery(JdbcTemplate jt, Consulta consulta){
+		return jt.queryForList(consulta.getQuery());			
 	}
 	
 	public List<Map<String, Object>> gestionarConsulta(Consulta consulta, String db){
 		SingleConnectionDataSource ds = consulta.conectarBD(db);
-	    return consulta.ejecutarQuery(ds, consulta);	
+		JdbcTemplate jt = new JdbcTemplate(ds);
+		this.limpiarCache(jt);
+		List<Map<String,Object>> resultados = consulta.ejecutarQuery(jt, consulta);
+		consulta.setTime(this.calcularTiempo(jt,consulta));
+		return resultados;	
 	}
 	
+	
+
+	
+	public Double getTime() {
+		return time;
+	}
+
+	public void setTime(Double time) {
+		this.time = time;
+	}
+
 	public int getId() {
 		return id;
 	}
