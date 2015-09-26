@@ -60,35 +60,32 @@ public class Consulta {
 	    return ds;
    	}
 	
-	private void limpiarCache(JdbcTemplate jt){
+	private JdbcTemplate limpiarCache(JdbcTemplate jt){
 		jt.execute("RESET QUERY CACHE;");
 		jt.execute("FLUSH QUERY CACHE;");
-		jt.execute("SET SESSION query_cache_type=0");
-		jt.execute("SET @@profiling = 0");
-		jt.execute("SET @@profiling_history_size = 0");
-		jt.execute("SET @@profiling_history_size = 100");
-	}
-	
-	private void calcularTiempo(JdbcTemplate jt) {
-		jt.execute("SET @@profiling = 1");
-		jt.execute(this.getQuery());
-		Double elapsedTime = jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING WHERE QUERY_ID=1", Double.class);
-		this.setTime(elapsedTime);
-		this.limpiarCache(jt);
-	}
-	
+		jt.execute("SET GLOBAL query_cache_size = 0;");
+		jt.execute("SET GLOBAL query_cache_type=0;");
+		jt.execute("SET @@profiling = 0;");
+		jt.execute("SET @@profiling_history_size = 0;");
+		jt.execute("SET @@profiling_history_size = 100;");
+		//SHOW STATUS LIKE 'Qcache%'; en workbench, restart mysqlserver
+		return jt;
 		
-	private List<Map<String,Object>> ejecutarQuery(JdbcTemplate jt){
-		return jt.queryForList(this.getQuery());			
 	}
 	
+	private List<Map<String,Object>> ejecutarQuery(JdbcTemplate jt) {
+		this.limpiarCache(jt);		
+		jt.execute("SET @@profiling = 1;");
+		List<Map<String,Object>> resultados = jt.queryForList(this.getQuery());
+		Double elapsedTime = jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING", Double.class);		
+		this.setTime(elapsedTime);
+		return resultados;
+	}
+			
 	public List<Map<String, Object>> gestionarConsulta(String db){
 		SingleConnectionDataSource ds = this.conectarBD(db);
-		JdbcTemplate jt = new JdbcTemplate(ds);
-		this.limpiarCache(jt);
-		List<Map<String,Object>> resultados = this.ejecutarQuery(jt);
-		this.calcularTiempo(jt);
-		return resultados;	
+		JdbcTemplate jt = new JdbcTemplate(ds);	
+		return this.ejecutarQuery(jt);	
 	}
 	
 
