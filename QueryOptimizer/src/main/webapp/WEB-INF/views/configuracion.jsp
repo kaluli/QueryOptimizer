@@ -8,19 +8,16 @@
 
 	<div class="container">
 		<div class="jumbotron">
-			<div class="row">																						 	  			
-				<div class="col-md-12" id="cuadro">
-				
-					<form:form method="post"  enctype="multipart/form-data" class="bs-example form-horizontal" action="upload.html">
-						<div class="col-md-12" >
-							<div class="form-group">
-								<label for="file">Importar Archivo sql</label>
-								<input type="file" name="file" accept=".sql" path="file" id="fileInput">
-								<p class="help-block"></p>
-			   						<button type="submit" class="btn btn-primary">Importar Archivo</button>					 
-								</div>					
-						</div>
-					</form:form>			    												
+			<div class="row"  id="cuadro">																						 	  			
+				<div class="col-md-10" >
+					<form:form method="post"  enctype="multipart/form-data" class="bs-example form-horizontal" action="upload.html">				
+						<div class="form-group">
+							<label for="file">Importar Archivo sql</label>
+							<input type="file" name="file" accept=".sql" path="file" id="fileInput">
+							<p class="help-block"></p>
+		   						<button type="submit" class="btn btn-primary">Importar Archivo</button>					 
+							</div>		
+					</form:form>	
 					<div class="form-group">
 						<h3>Archivos cargados</h3>
 						<select id="config" name="configId" class="form-control">
@@ -29,13 +26,13 @@
 						<option value="${config.id}" >${config.name}</option>
 					    </c:forEach>
 						</select>
-					</div>								
+					</div>							
+				</div>
+					    											
 				</div>				
 			</div>	
-				
-					    		
 		</div>					            				     
-  	</div>					  
+  	  
 	<div class="panel panel-success">		
 		<div class="panel-body">
 		<div class="alert alert-dismissable alert-success">

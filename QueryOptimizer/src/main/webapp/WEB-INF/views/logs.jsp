@@ -8,15 +8,18 @@
 
 	<div class="container">
 		<div class="jumbotron">
-			<div class="row">
+			<div class="row" id="cuadro">
+					<div class="col-md-12">
+					<h3>Log de: <c:out value="${user.username}"/></h3>
+					</div>
 					<div class="col-md-6">
-					Log de: <c:out value="${user.username}"/>
+					<b>Consulta</b>
 					</div>
 					<div class="col-md-3">
-					Duración
+					<b>Duración</b>
 					</div>
 					<div class="col-md-3">
-					Fecha
+					<b>Fecha</b>
 					</div>
 					
 					<c:forEach var="consulta" items="${user.consultas}">
