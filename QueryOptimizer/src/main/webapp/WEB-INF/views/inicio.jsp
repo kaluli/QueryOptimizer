@@ -53,8 +53,7 @@
 				</form:form>	
 							
 				<div class="col-md-12">
-					Consulta: ${consulta.query}<br/>
-					${consulta.time}<br/>
+					Consulta: ${consulta.query}<br/>					
 					Tiempo: <fmt:formatNumber type="number" maxFractionDigits="5" value="${consulta.time}" /> segundos<br/>
 					Resultados:	<br/>
 					<c:forEach var="resultado" items="${resultados}">

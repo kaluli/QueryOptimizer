@@ -69,8 +69,8 @@ public class Consulta {
 		jt.execute("SET @@profiling_history_size = 0;");
 		jt.execute("SET @@profiling_history_size = 100;");
 		//SHOW STATUS LIKE 'Qcache%'; en workbench, restart mysqlserver
-		return jt;
-		
+		//sudo /etc/init.d/mysql restart en una terminal
+		return jt;		
 	}
 	
 	private List<Map<String,Object>> ejecutarQuery(JdbcTemplate jt) {
