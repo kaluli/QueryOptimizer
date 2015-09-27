@@ -86,8 +86,7 @@ public class Consulta {
 		SingleConnectionDataSource ds = this.conectarBD(db);
 		JdbcTemplate jt = new JdbcTemplate(ds);	
 		return this.ejecutarQuery(jt);	
-	}
-	
+	}	
 
 	public Double getTime() {
 		return time;
