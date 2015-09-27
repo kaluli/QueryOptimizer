@@ -73,12 +73,15 @@ public class Consulta {
 		return jt;		
 	}
 	
+	private Double calculaTiempo(JdbcTemplate jt){
+		return jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING", Double.class);		
+	}
+	
 	private List<Map<String,Object>> ejecutarQuery(JdbcTemplate jt) {
 		this.limpiarCache(jt);		
 		jt.execute("SET @@profiling = 1;");
 		List<Map<String,Object>> resultados = jt.queryForList(this.getQuery());
-		Double elapsedTime = jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING", Double.class);		
-		this.setTime(elapsedTime);
+		this.setTime(this.calculaTiempo(jt));
 		return resultados;
 	}
 			

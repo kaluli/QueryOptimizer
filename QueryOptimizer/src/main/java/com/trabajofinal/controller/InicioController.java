@@ -1,13 +1,12 @@
 package com.trabajofinal.controller;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.trabajofinal.mahout.MachineLearning;
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
 import com.trabajofinal.model.User;
@@ -61,9 +60,15 @@ public class InicioController {
     	Date date = new Date();
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());						
 		Consulta consulta = new Consulta(query,usu.getId(),configId,date);				
-		String db = configuracionService.findById(consulta.getIdconfig()).getName();
-		model.addAttribute("resultados", consulta.gestionarConsulta(db));
+		Configuracion config = configuracionService.findById(consulta.getIdconfig());
+		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName()));
 		consultaService.save(consulta);
+		
+		MachineLearning machineLearning = new MachineLearning();
+		//machineLearning.analizar(consulta,config);
+		/*for(int i = 0; i < recomendaciones.size(); i++) {
+	            System.out.println(recomendaciones.get(i));
+        }*/
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";
