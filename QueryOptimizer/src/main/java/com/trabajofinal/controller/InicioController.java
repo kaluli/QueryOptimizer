@@ -64,16 +64,21 @@ public class InicioController {
 		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName()));
 		consultaService.save(consulta);
 		
-		MachineLearning machineLearning = new MachineLearning();
-		//machineLearning.analizar(consulta,config);
+		MachineLearning machineLearning = new MachineLearning(consulta, config);
+		List<RecommendedItem> recommendations = machineLearning.analizar();
+		
+		for (RecommendedItem recommendation : recommendations) {
+			  System.out.println(recommendation);
+			}
+		
+		
 		/*for(int i = 0; i < recomendaciones.size(); i++) {
 	            System.out.println(recomendaciones.get(i));
         }*/
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";
-	}
-	
+	}	
 	
 
 	@RequestMapping(value="/configuracion", method=RequestMethod.GET)	

@@ -2,28 +2,16 @@ package com.trabajofinal.mahout;
 
 import java.util.List;
 
-import org.apache.hadoop.io.FloatWritable;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.eval.IRStatistics;
-import org.apache.mahout.cf.taste.eval.RecommenderBuilder;
-import org.apache.mahout.cf.taste.eval.RecommenderEvaluator;
-import org.apache.mahout.cf.taste.eval.RecommenderIRStatsEvaluator;
-import org.apache.mahout.cf.taste.impl.common.FullRunningAverage;
-import org.apache.mahout.cf.taste.impl.common.RunningAverage;
-import org.apache.mahout.cf.taste.impl.eval.AverageAbsoluteDifferenceRecommenderEvaluator;
-import org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluator;
-import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
-import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
-import org.apache.mahout.cf.taste.impl.recommender.GenericRecommendedItem;
-import org.apache.mahout.cf.taste.impl.recommender.slopeone.SlopeOneRecommender;
+import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
-import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.JDBCDataModel;
-import org.apache.mahout.cf.taste.model.PreferenceArray;
+import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.apache.mahout.cf.taste.recommender.Recommender;
-import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
+import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
+import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.mahout.common.RandomUtils;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
@@ -32,27 +20,51 @@ import com.trabajofinal.model.Consulta;
 
 public class MachineLearning{
 
+	private String query;
+	private String database;
+
 	public MachineLearning() {
 	}
 
-	public void analizar(Consulta consulta, Configuracion config) {
+	public MachineLearning(Consulta consulta, Configuracion config) {
+		this.query = consulta.getQuery();
+		this.database = config.getName();		
+	}
+
+	public List<RecommendedItem> analizar() {
 		RandomUtils.useTestSeed();
-		
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("localhost");
 		dataSource.setUser("root");
 		dataSource.setPassword("kaluli32");
-		dataSource.setDatabaseName(config.getName());
-		JDBCDataModel model = new MySQLJDBCDataModel(dataSource);
+		dataSource.setDatabaseName("tesis");
 		
-		RunningAverage averageRating = new FullRunningAverage();
-		//PreferenceArray prefs= model.getPreferencesFromUser("time");
+		System.out.println("query: " + query + "database: " + database);
+		JDBCDataModel model = new MySQLJDBCDataModel(dataSource, "ranking_queries", 
+				"user_id","item_id", "ranking", null);
+		System.out.println(model);
+		try {
+			UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
+			UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
+			UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+			List<RecommendedItem> recommendations = recommender.recommend(2, 3);
+			for (RecommendedItem recommendation : recommendations) {
+				  System.out.println(recommendation);
+				}
+			
+			return recommendations;	
+			
+		} catch (TasteException e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
+		
 		
 		
 		
 		
 	}
-	
+	/*
 	// Comparar la query alternativa con la original
 	private String compararVelocidadQueries(Consulta consulta, String alternativa){
 		String mas_veloz = alternativa; 		
@@ -72,5 +84,5 @@ public class MachineLearning{
 		else
 			return false;				
 	}
-
+*/
 }
