@@ -1,5 +1,6 @@
 package com.trabajofinal.controller;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.trabajofinal.mahout.MachineLearning;
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
+import com.trabajofinal.model.Ranking;
 import com.trabajofinal.model.User;
 import com.trabajofinal.service.ConfiguracionService;
 import com.trabajofinal.service.ConsultaService;
+import com.trabajofinal.service.RankingService;
 import com.trabajofinal.service.UserService;
 
 
@@ -38,7 +41,10 @@ public class InicioController {
 	
 	@Autowired
 	private ConfiguracionService configuracionService;
-	
+
+	@Autowired
+	private RankingService rankingService;
+
 	@RequestMapping(value="/inicio", method=RequestMethod.GET)	
 	public String inicio(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {		
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());
@@ -63,13 +69,16 @@ public class InicioController {
 		Configuracion config = configuracionService.findById(consulta.getIdconfig());
 		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName()));
 		consultaService.save(consulta);
-		
-		MachineLearning machineLearning = new MachineLearning(consulta, config);
+		Ranking ranking = new Ranking(usu.getId(), consulta.getId(), (float) 1);
+		rankingService.save(ranking);
+		MachineLearning machineLearning = new MachineLearning(ranking, config);		
 		List<RecommendedItem> recommendations = machineLearning.analizar();
 		
-		for (RecommendedItem recommendation : recommendations) {
+		if (recommendations != null){
+			for (RecommendedItem recommendation : recommendations) {
 			  System.out.println(recommendation);
 			}
+		}
 		
 		
 		/*for(int i = 0; i < recomendaciones.size(); i++) {

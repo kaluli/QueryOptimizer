@@ -86,9 +86,11 @@ public class Consulta {
 	}
 			
 	public List<Map<String, Object>> gestionarConsulta(String db){
-		SingleConnectionDataSource ds = this.conectarBD(db);
-		JdbcTemplate jt = new JdbcTemplate(ds);	
-		return this.ejecutarQuery(jt);	
+		// conectar a la bd seleccionada
+		SingleConnectionDataSource dbs = this.conectarBD(db);
+		JdbcTemplate jt = new JdbcTemplate(dbs);
+		List<Map<String, Object>> result = this.ejecutarQuery(jt); 
+		return result;	
 	}	
 
 	public Double getTime() {

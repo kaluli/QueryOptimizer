@@ -1,5 +1,6 @@
 package com.trabajofinal.mahout;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -10,24 +11,25 @@ import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.JDBCDataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
+import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.mahout.common.RandomUtils;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
+import com.trabajofinal.model.Ranking;
 
 public class MachineLearning{
 
-	private String query;
+	private int query_id;
 	private String database;
 
 	public MachineLearning() {
 	}
 
-	public MachineLearning(Consulta consulta, Configuracion config) {
-		this.query = consulta.getQuery();
+	public MachineLearning(Ranking ranking , Configuracion config) {
+		this.query_id = ranking.getItem_id();
 		this.database = config.getName();		
 	}
 
@@ -39,14 +41,15 @@ public class MachineLearning{
 		dataSource.setPassword("kaluli32");
 		dataSource.setDatabaseName("tesis");
 		
-		System.out.println("query: " + query + "database: " + database);
+		System.out.println("query: " + query_id + "database: " + database);
 		JDBCDataModel model = new MySQLJDBCDataModel(dataSource, "ranking_queries", 
 				"user_id","item_id", "ranking", null);
 		System.out.println(model);
 		try {
 			UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
 			UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
-			UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+			Recommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+			//UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
 			List<RecommendedItem> recommendations = recommender.recommend(2, 3);
 			for (RecommendedItem recommendation : recommendations) {
 				  System.out.println(recommendation);
@@ -77,6 +80,10 @@ public class MachineLearning{
 		return queriesAlternativas;
 	}
 
+	private void actualizarRanking(){
+		
+	}
+	
 	// Que traiga los mismos resultados que la query original
 	private boolean validarResultados(String query, String resultados){
 		if (query == resultados)
