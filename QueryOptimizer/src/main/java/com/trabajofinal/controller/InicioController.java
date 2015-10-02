@@ -1,12 +1,9 @@
 package com.trabajofinal.controller;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
-
 import com.trabajofinal.mahout.MachineLearning;
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
@@ -69,21 +65,11 @@ public class InicioController {
 		Configuracion config = configuracionService.findById(consulta.getIdconfig());
 		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName()));
 		consultaService.save(consulta);
-		Ranking ranking = new Ranking(usu.getId(), consulta.getId(), (float) 1);
+		Ranking ranking = new Ranking(usu.getId(), consulta.getId(),null, null,date);
 		rankingService.save(ranking);
 		MachineLearning machineLearning = new MachineLearning(ranking, config);		
-		List<RecommendedItem> recommendations = machineLearning.analizar();
+		machineLearning.gestionarRanking(ranking);
 		
-		if (recommendations != null){
-			for (RecommendedItem recommendation : recommendations) {
-			  System.out.println(recommendation);
-			}
-		}
-		
-		
-		/*for(int i = 0; i < recomendaciones.size(); i++) {
-	            System.out.println(recomendaciones.get(i));
-        }*/
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";

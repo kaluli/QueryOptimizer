@@ -1,8 +1,7 @@
 package com.trabajofinal.mahout;
 
-import java.math.BigInteger;
-import java.util.List;
 
+import java.util.List;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -14,14 +13,17 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.mahout.common.RandomUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.trabajofinal.model.Configuracion;
-import com.trabajofinal.model.Consulta;
 import com.trabajofinal.model.Ranking;
+import com.trabajofinal.service.RankingService;
 
 public class MachineLearning{
-
+	@Autowired
+	private RankingService rankingService;
+	
 	private int query_id;
 	private String database;
 
@@ -60,13 +62,23 @@ public class MachineLearning{
 		} catch (TasteException e) {
 			// TODO Auto-generated catch block
 			return null;
-		}
-		
-		
-		
-		
+		}		
 		
 	}
+
+	public void gestionarRanking(Ranking ranking) {
+		
+		//rankingService.findByQuery();
+	
+	}
+	
+	// Con MachineLearning genero items (queries genéricas)
+		private void parsearConsultas(Ranking ranking){
+		
+			
+		}
+
+	
 	/*
 	// Comparar la query alternativa con la original
 	private String compararVelocidadQueries(Consulta consulta, String alternativa){
