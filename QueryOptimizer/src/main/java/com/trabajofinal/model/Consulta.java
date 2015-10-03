@@ -18,7 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 @Entity
-@Table(name="consulta")
+@Table(name="consultas")
 public class Consulta {
 	
 	@Id

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.OneToMany;
@@ -14,7 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 @Entity
-@Table(name="ranking")
+@Table(name="rankings")
 @IdClass(value=RankingPK.class)
 public class Ranking{
 	
@@ -123,8 +122,8 @@ public class Ranking{
 		this.item_id = item_id;
 	}
 	
-	@OneToMany(targetEntity=Item.class, mappedBy="item_id", fetch=FetchType.EAGER)
+	/*@OneToMany(targetEntity=Item.class, mappedBy="id", fetch=FetchType.EAGER)
 	private List<Item> Item;
-
+*/
 	
 }

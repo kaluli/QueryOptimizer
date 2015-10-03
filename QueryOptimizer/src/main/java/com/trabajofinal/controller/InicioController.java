@@ -1,10 +1,8 @@
 package com.trabajofinal.controller;
 
 import java.util.Date;
-import java.util.List;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -65,10 +63,10 @@ public class InicioController {
 		Configuracion config = configuracionService.findById(consulta.getIdconfig());
 		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName()));
 		consultaService.save(consulta);
-		Ranking ranking = new Ranking(usu.getId(), consulta.getId(),null, null,date);
+		Ranking ranking = new Ranking(usu.getId(),0,null,null,date);
 		rankingService.save(ranking);
-		MachineLearning machineLearning = new MachineLearning(ranking, config);		
-		machineLearning.gestionarRanking(ranking);
+		MachineLearning machineLearning = new MachineLearning(ranking, consulta, config);		
+		machineLearning.gestionarRanking();
 		
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
