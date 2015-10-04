@@ -17,6 +17,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
+import com.trabajofinal.utils.Database;
+
 @Entity
 @Table(name="consultas")
 public class Consulta {
@@ -49,47 +51,12 @@ public class Consulta {
 		this.created = created;
 	}
 
-	private SingleConnectionDataSource conectarBD(String database){
-		SingleConnectionDataSource ds = new SingleConnectionDataSource();
-		  // Sería óptimo que leyera estos datos de un archivo 
-	    ds.setDriverClassName("com.mysql.jdbc.Driver");
-	    String url = "jdbc:mysql://127.0.0.1:3306/" + database;	  
-	    ds.setUrl(url);
-	    ds.setUsername("root");
-	    ds.setPassword("kaluli32");
-	    return ds;
-   	}
-	
-	private JdbcTemplate limpiarCache(JdbcTemplate jt){
-		jt.execute("RESET QUERY CACHE;");
-		jt.execute("FLUSH QUERY CACHE;");
-		jt.execute("SET GLOBAL query_cache_size = 0;");
-		jt.execute("SET GLOBAL query_cache_type=0;");
-		jt.execute("SET @@profiling = 0;");
-		jt.execute("SET @@profiling_history_size = 0;");
-		jt.execute("SET @@profiling_history_size = 100;");
-		//SHOW STATUS LIKE 'Qcache%'; en workbench, restart mysqlserver
-		//sudo /etc/init.d/mysql restart en una terminal
-		return jt;		
-	}
-	
-	private Double calculaTiempo(JdbcTemplate jt){
-		return jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING", Double.class);		
-	}
-	
-	private List<Map<String,Object>> ejecutarQuery(JdbcTemplate jt) {
-		this.limpiarCache(jt);		
-		jt.execute("SET @@profiling = 1;");
-		List<Map<String,Object>> resultados = jt.queryForList(this.getQuery());
-		this.setTime(this.calculaTiempo(jt));
-		return resultados;
-	}
 			
-	public List<Map<String, Object>> gestionarConsulta(String db){
+	public List<Map<String, Object>> gestionarConsulta(String db, Database database){
 		// conectar a la bd seleccionada
-		SingleConnectionDataSource dbs = this.conectarBD(db);
-		JdbcTemplate jt = new JdbcTemplate(dbs);
-		List<Map<String, Object>> result = this.ejecutarQuery(jt); 
+		JdbcTemplate jt = database.conectarBD(db);		
+		List<Map<String, Object>> result = database.ejecutarQuery(jt, this, database);
+		database.desconectarBD();
 		return result;	
 	}	
 

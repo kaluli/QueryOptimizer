@@ -4,5 +4,7 @@ import com.trabajofinal.model.Consulta;
 
 public interface ConsultaService {
 	public Consulta save(Consulta query);
+
+	public Double getTimeAverage(String query);
 	
 }

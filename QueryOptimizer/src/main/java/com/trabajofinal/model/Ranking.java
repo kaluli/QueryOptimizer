@@ -26,9 +26,7 @@ public class Ranking{
 	@Column(name = "ranking", nullable = false)
 	private Float ranking;
 	
-	@Column(name = "time", nullable = false)
-	private Double time;
-	
+	 
 	private Date created;
 
 	public Ranking(){}
@@ -37,7 +35,7 @@ public class Ranking{
 		this.user_id = user_id;
 		this.item_id = item_id;
 		this.ranking = (float) 1; // Por defecto el ranking más bajo
-		this.time = time;
+		
 		this.created = created;
 	}
 
@@ -80,14 +78,7 @@ public class Ranking{
 		return null;	
 	}	
 
-
-	public Double getTime() {
-		return time;
-	}
-
-	public void setTime(Double time) {
-		this.time = time;
-	}
+ 
 
 	
 	public Date getCreated() {

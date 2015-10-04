@@ -1,8 +1,10 @@
 package com.trabajofinal.controller;
 
 import java.util.Date;
+
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+
 import com.trabajofinal.mahout.MachineLearning;
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
@@ -21,6 +24,7 @@ import com.trabajofinal.service.ConfiguracionService;
 import com.trabajofinal.service.ConsultaService;
 import com.trabajofinal.service.RankingService;
 import com.trabajofinal.service.UserService;
+import com.trabajofinal.utils.Database;
 
 
 @Controller
@@ -58,14 +62,15 @@ public class InicioController {
 	@RequestMapping(value="/inicio", method=RequestMethod.POST)
 	public String inicio(@RequestParam("query") String query, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
     	Date date = new Date();
+    	Database database = new Database();
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());						
 		Consulta consulta = new Consulta(query,usu.getId(),configId,date);				
 		Configuracion config = configuracionService.findById(consulta.getIdconfig());
-		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName()));
+		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName(), database));
 		consultaService.save(consulta);
 		MachineLearning machineLearning = new MachineLearning(consulta, config);
-		Ranking ranking = new Ranking(usu.getId(),machineLearning.getRankingId(consulta.getQuery()),null,null,date);			
-		machineLearning.gestionarRanking(ranking);		
+		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());
+		Ranking ranking = machineLearning.gestionarRanking(database, usu, timeAverage, date);		
 		rankingService.save(ranking);
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		

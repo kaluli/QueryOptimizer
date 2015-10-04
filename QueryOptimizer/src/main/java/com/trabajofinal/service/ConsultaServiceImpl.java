@@ -20,4 +20,9 @@ public class ConsultaServiceImpl implements ConsultaService {
 		return null;
 	}
 
+	@Transactional
+	public Double getTimeAverage(String query) {
+		return consultaRepository.getTimeAverage(query);		
+	}
+
 }

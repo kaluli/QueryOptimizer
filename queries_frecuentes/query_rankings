@@ -1,0 +1,1 @@
+SELECT user_id,query, item_id,ranking,time, items.created FROM tesis.rankings inner join items on rankings.item_id = items.id

@@ -8,38 +8,25 @@
 
 	<div class="container">
 		<div class="jumbotron">
-			<div class="row" id="cuadro">
-					<div class="col-md-12">
-					<h3>Log de: <c:out value="${user.username}"/></h3>
-					</div>
-					<div class="col-md-6">
-					<b>Consulta</b>
-					</div>
-					<div class="col-md-3">
-					<b>Duración</b>
-					</div>
-					<div class="col-md-3">
-					<b>Fecha</b>
-					</div>
-					
-					<c:forEach var="consulta" items="${user.consultas}">
-						<div class="logs">
-							<div class="col-md-6">
-							<strong><c:out value="${consulta.query}"/></strong>
-							</div>
-							<div class="col-md-3">
-							<fmt:formatNumber type="number" maxFractionDigits="5" value="${consulta.time}" /> segs
-							</div>
-							<div class="col-md-3">
-							<fmt:formatDate value="${consulta.created}" pattern="dd/MM/yyyy HH:mm" />						
-							</div>		
-							<br/>							
-						</div>
-					</c:forEach>				
-				</div>				
-				
-				
-					    		
+			<div class="row" id="cuadro">												
+					<div class="logs">
+						<table id="t01">
+						<caption><h3>Log de: <c:out value="${user.username}"/></h3></caption>						
+						<tr>
+						    <th>Consulta</th>
+						    <th>Duración</th> 
+						    <th>Fecha</th>
+					  	</tr>
+						<c:forEach var="consulta" items="${user.consultas}">				
+						  <tr>
+						    <td tabindex="1" width="60%"><strong><c:out value="${consulta.query}"/></strong></td>
+						    <td tabindex="1" width="20%"><fmt:formatNumber type="number" maxFractionDigits="5" value="${consulta.time}" /> segs</td> 
+						    <td tabindex="1"  width="20%"><fmt:formatDate value="${consulta.created}" pattern="dd/MM/yyyy HH:mm" />	</td>
+						  </tr>
+				  		</c:forEach>	
+					 </table>									
+					</div>						
+				</div>									
 		</div>					            				     
   	</div>					  
 	<div class="panel panel-success">		
