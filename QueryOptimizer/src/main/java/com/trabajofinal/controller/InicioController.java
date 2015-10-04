@@ -63,11 +63,10 @@ public class InicioController {
 		Configuracion config = configuracionService.findById(consulta.getIdconfig());
 		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName()));
 		consultaService.save(consulta);
-		Ranking ranking = new Ranking(usu.getId(),0,null,null,date);
+		MachineLearning machineLearning = new MachineLearning(consulta, config);
+		Ranking ranking = new Ranking(usu.getId(),machineLearning.getRankingId(consulta.getQuery()),null,null,date);			
+		machineLearning.gestionarRanking(ranking);		
 		rankingService.save(ranking);
-		MachineLearning machineLearning = new MachineLearning(ranking, consulta, config);		
-		machineLearning.gestionarRanking();
-		
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";

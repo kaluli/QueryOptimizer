@@ -31,11 +31,11 @@
 	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/QueryOptimizer/QueryOptimizer/libs/mybatis-3.2.3.jar"/>
 	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/QueryOptimizer/QueryOptimizer/libs/ibatis-common-2.jar.zip"/>
 	<classpathentry kind="lib" path="libs/mahout-distribution-0.10.0"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
+	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/QueryOptimizer/QueryOptimizer/libs/gson-2.3.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-7-openjdk-amd64">
 		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/kalu/Documents/workspace-sts-3.6.4.RELEASE/QueryOptimizer/QueryOptimizer/libs/gson-2.3.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

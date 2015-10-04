@@ -3,17 +3,9 @@ package com.trabajofinal.mahout;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Text;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -29,13 +21,9 @@ import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
-import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
-import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
 import org.apache.mahout.common.RandomUtils;
 import org.apache.mahout.math.RandomAccessSparseVector;
-import org.apache.mahout.math.SequentialAccessSparseVector;
 import org.apache.mahout.math.Vector;
-import org.apache.mahout.math.Vector.Element;
 import org.apache.mahout.vectorizer.encoders.FeatureVectorEncoder;
 import org.apache.mahout.vectorizer.encoders.StaticWordValueEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,26 +36,26 @@ import com.trabajofinal.service.RankingService;
 
 public class MachineLearning{
 	
-	private static final String[] DATA = null;
-
 	@Autowired
 	private RankingService rankingService;
 	
-	private int query_id;
+	private int queryId;
 	private String database;
 	private String consulta;
-	//private sqlStatements statement;
+	private Ranking ranking;
 
+	private Analyzer analyzer;
+	
 	public MachineLearning() {
 	}
 
-	public MachineLearning(Ranking ranking, Consulta consulta, Configuracion config) {
-		this.query_id = ranking.getItem_id();
+	public MachineLearning(Consulta consulta, Configuracion config) {
+		//this.queryId = ranking.getItemId();
 		this.database = config.getName();
-		this.consulta = consulta.getQuery();
+		this.consulta = consulta.getQuery();		
 	}
 
-	public List<RecommendedItem> analizar() {
+	public List<RecommendedItem> recomendar() {
 		RandomUtils.useTestSeed();
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("localhost");
@@ -75,7 +63,7 @@ public class MachineLearning{
 		dataSource.setPassword("kaluli32");
 		dataSource.setDatabaseName("tesis");
 		
-		System.out.println("query: " + query_id + "database: " + database);
+		System.out.println("query: " + queryId + "database: " + database);
 		JDBCDataModel model = new MySQLJDBCDataModel(dataSource, "ranking_queries", 
 				"user_id","item_id", "ranking", null);
 		System.out.println(model);
@@ -98,13 +86,10 @@ public class MachineLearning{
 		
 	}
 
-	/*public enum sqlStatements{
-		SELECT, INSERT, UPDATE, DELETE, ALTER, DROP, CREATE, USE, SHOW
-	  }*/
 	
 	/*private List<Category> getCategory(String keyword) throws IOException {
 		  List<String> words=new ArrayList<String>();
-		  List<Category> recommendCategories=new ArrayList<Category>();
+		  List<Category> recommendCategories=new ArrayList<Category>();ge
 		  Analyzer analyzer=new StandardAnalyzer(Version.LUCENE_30);
 		  TokenStream tokenStream=analyzer.reusableTokenStream("title",new StringReader(keyword));
 		 
@@ -131,11 +116,11 @@ public class MachineLearning{
 	
 	
 	@Autowired
-	public void clasificarQuery(String consulta) {
+	public List<String> clasificarQuery(String consulta) {
 
 		//sqlStatements currentStatement = sqlStatements.valueOf(consulta.toUpperCase());
 		FeatureVectorEncoder encoder = new StaticWordValueEncoder("SELECT");
-		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_30);
+		analyzer = new StandardAnalyzer(Version.LUCENE_30);
 	    List<String> result = new ArrayList<String>();
 
 		try {
@@ -161,7 +146,7 @@ public class MachineLearning{
 			ts.end();
 			ts.close();
 			
-			Configuration configuration = new Configuration();
+			/*Configuration configuration = new Configuration();
 			configuration.set("select * from table", "bad");
 			NaiveBayesModel model = NaiveBayesModel.fromMRTrainerOutput(new Path("/home/kalu/tmp/input"), configuration);
 			StandardNaiveBayesClassifier classifier = new StandardNaiveBayesClassifier(model);
@@ -191,44 +176,14 @@ public class MachineLearning{
 					System.out.println("es negativo: ");
 				}
 				analyzer.close();
-			}
-
-			
+			}*/			
 		} catch (IOException e) {			
 			e.printStackTrace();
 			System.out.println(e);
 		}
 		
-	
-	
-		/*
-		switch (currentStatement){
-		case SELECT:{
-			
-		
-			}	
-			break;
-		case INSERT:
-			break;
-		case UPDATE:
-			break;
-		case DELETE:
-			break;
-		case ALTER:
-			break;
-		case DROP:
-			break;
-		case CREATE:
-			break;
-		case USE:
-			break;
-		case SHOW:
-			break;
-		default:
-			break;
-		}*/
-		
 		System.out.println(consulta);
+		return result;
 	
 	}
 	
@@ -236,17 +191,93 @@ public class MachineLearning{
        
     } 
 	
-	public void gestionarRanking() {
-		this.clasificarQuery(this.consulta);
-		
+	public void gestionarRanking(Ranking ranking) {
+
 		//rankingService.findByQuery();
 	
 	}
 	
 	// Con MachineLearning genero items (queries genéricas)
-		private void parsearConsultas(Ranking ranking){
-		
+		public int getRankingId(String consulta){
+			List<String> result = this.clasificarQuery(consulta);
+			String currentStatement = result.get(0); 
+			Boolean where = false; Boolean all = false; Boolean inner = false;
+			int item = 0;
+			System.out.println(result.get(1));
+			if (result.get(1).contentEquals("term=from")){
+				all = true;
+			}
 			
+			for(int i = 0; i < result.size(); i++) {
+				// Tiene conditions Item 3, 4, 5, 6
+				switch (result.get(i)){
+					case "term=where":
+						where = true;
+						break;
+					case "term=inner":
+						inner = true;
+						break;
+					default:
+						break;
+				}
+			}
+						
+			switch (currentStatement){
+			case "term=select":{
+				if ((all == true) && (where == false)){
+					item = 1;
+				}
+				if ((all == false) && (where == false)){
+					item = 2;
+				}
+				if ((all == true) && (where == true)){
+					item = 3;
+				}
+				if ((all == false) && (where == true)){
+					item = 4;
+				}
+				if ((all == true) && (where == true) && (inner == true)){
+					item = 5;
+				}
+				if ((all == false) && (where == true) && (inner == true)){
+					item = 6;
+				}
+				// Select anidados
+				/*if ((all == true) && (where == true) && (inner == true)){
+					item = 7;
+				}*/
+				
+				System.out.println("Item: " + item);
+			
+			}	
+			break;
+			case "term=insert":{
+				System.out.println("insert acaaa");
+			
+			}
+			break;
+			case "term=update":
+				break;
+			case "term=delete":
+				break;
+			case "term=alter":
+				break;
+			case "term=drop":
+				break;
+			case "term=create":
+				break;
+			case "term=use":
+				break;
+			case "term=show":
+				break;
+			default:
+				break;
+			}
+					
+			for(int i = 0; i < result.size(); i++) {
+	            System.out.println(result.get(i));
+	        }
+			return item;
 		}
 
 	

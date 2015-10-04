@@ -106,19 +106,19 @@ public class Ranking{
 		this.ranking = ranking;
 	}
 
-	public int getUser_id() {
+	public int getUserId() {
 		return user_id;
 	}
 
-	public void setUser_id(int user_id) {
+	public void setUserId(int user_id) {
 		this.user_id = user_id;
 	}
 
-	public int getItem_id() {
+	public int getItemId() {
 		return item_id;
 	}
 
-	public void setItem_id(int item_id) {
+	public void setItemId(int item_id) {
 		this.item_id = item_id;
 	}
 	

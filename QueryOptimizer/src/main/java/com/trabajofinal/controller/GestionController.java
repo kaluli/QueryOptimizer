@@ -3,12 +3,9 @@ package com.trabajofinal.controller;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
-import java.io.FileReader;
 import java.io.IOException;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
