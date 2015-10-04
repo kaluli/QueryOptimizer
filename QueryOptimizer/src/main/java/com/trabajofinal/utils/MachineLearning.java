@@ -1,4 +1,4 @@
-package com.trabajofinal.mahout;
+package com.trabajofinal.utils;
 
 
 import java.io.IOException;
@@ -40,7 +40,6 @@ import com.trabajofinal.model.Consulta;
 import com.trabajofinal.model.Ranking;
 import com.trabajofinal.model.User;
 import com.trabajofinal.service.RankingService;
-import com.trabajofinal.utils.Database;
 
 public class MachineLearning{
 	
@@ -176,8 +175,7 @@ public class MachineLearning{
 		
 	
 	public Ranking gestionarRanking(Database database, User usu, Double timeAverage, Date created) {
-		Ranking ranking = new Ranking(usu.getId(),this.getRankingId(consulta),null,timeAverage,created);			
-		database.
+		Ranking ranking = new Ranking(usu.getId(),this.getRankingId(consulta),null,timeAverage,created);					
 		this.slopeOne();		
 		return ranking;
 	

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.trabajofinal.mahout.MachineLearning;
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
 import com.trabajofinal.model.Ranking;
@@ -25,6 +24,7 @@ import com.trabajofinal.service.ConsultaService;
 import com.trabajofinal.service.RankingService;
 import com.trabajofinal.service.UserService;
 import com.trabajofinal.utils.Database;
+import com.trabajofinal.utils.MachineLearning;
 
 
 @Controller
