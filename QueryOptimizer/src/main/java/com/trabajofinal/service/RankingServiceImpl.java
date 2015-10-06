@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trabajofinal.model.Item;
 import com.trabajofinal.model.Ranking;
 import com.trabajofinal.repository.RankingRepository;
 
@@ -30,6 +31,12 @@ public class RankingServiceImpl implements RankingService {
 	@Transactional
 	public List<Ranking> findAll() {
 		return rankingRepository.findAll();				
+	}
+
+	
+	@Transactional
+	public Ranking findByItemId(int item_id) {
+		return rankingRepository.findByItemId(item_id);
 	}
 
 	

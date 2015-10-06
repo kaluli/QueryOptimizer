@@ -4,7 +4,6 @@ package com.trabajofinal.utils;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -36,11 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
+import com.trabajofinal.model.Item;
 import com.trabajofinal.model.Ranking;
-import com.trabajofinal.model.User;
+import com.trabajofinal.service.ItemService;
+
 
 public class MachineLearning{
-	
+
 	private int queryId;
 	private String database;
 	private String consulta;
@@ -58,6 +59,12 @@ public class MachineLearning{
 		this.consulta = consulta.getQuery();		
 	}
 
+	
+	public Ranking gestionarRanking(Database database, Consulta consulta, Ranking ranking, Item item) {		
+		List<RecommendedItem> recomendaciones = this.slopeOne(ranking.getUserId());		
+		return ranking;	
+	}
+	
 	public List<RecommendedItem> recomendar() {
 		RandomUtils.useTestSeed();
 		MysqlDataSource dataSource = new MysqlDataSource();
@@ -114,6 +121,7 @@ public class MachineLearning{
 				for (RecommendedItem recommendation : recommendations) {
 					  System.out.println(recommendation);
 				}
+				return recommendations;	
 			}
 			return null;	
 			
@@ -160,15 +168,9 @@ public class MachineLearning{
 		System.out.println(consulta);
 		return result;	
 	}
-		
-	
-	public Ranking gestionarRanking(Database database, Ranking ranking) {		
-		this.slopeOne(ranking.getUserId());		
-		return ranking;	
-	}
-	
+			
 	// Con MachineLearning genero items (queries genéricas)
-		public int getRankingId(String consulta){
+		public int getItemId(String consulta){
 			List<String> result = this.clasificarQuery(consulta);
 			String currentStatement = result.get(0); 
 			Boolean where = false; Boolean all = false; Boolean inner = false;
@@ -250,16 +252,27 @@ public class MachineLearning{
 			return item;
 		}
 	
-	public float crearRankingId(List<Ranking> rankings) {		
-		
+	public float crearRankingId(List <Ranking> rankings, Item item) {		
+		for(int i = 0; i < rankings.size(); i++) {
+		    
+			System.out.println(rankings.get(i).getItemId());
+		    
+		    
+		    
+			//List<Item> items = itemService.findAll();
+			//Item item = itemService.findById(1);
+        
+            //System.out.println(item.getQuery());
+            
+        }
 		return 1;
 		
 	}
-	// Comparar la query alternativa con la original
-	private String compararVelocidadQueries(Consulta consulta, String alternativa){
-		String mas_veloz = alternativa; 		
-		return mas_veloz;
-	}
+	
+
+	
+	
+	
 	
 	// Con MachineLearning genero queries alternativas
 	private List<String> generarQueriesAlternativas(){
@@ -278,5 +291,12 @@ public class MachineLearning{
 		else
 			return false;				
 	}
+
+	public void addItem(Ranking ranking) {
+		
+		
+	}
+	
+	
 
 }

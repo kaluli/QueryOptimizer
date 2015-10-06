@@ -5,10 +5,11 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.swing.ListModel;
 
 @Entity
 @Table(name="rankings")
@@ -33,13 +34,11 @@ public class Ranking{
 	public Ranking(int user_id, int item_id, Float ranking,Double time, Date created) {		
 		this.user_id = user_id;
 		this.item_id = item_id;
-		this.ranking = (float)1;
+		this.ranking = ranking;
 		this.time    = time;
 		this.created = created;
 	}
 			
-	
-	
 	public Double getTime() {
 		return time;
 	}
@@ -78,12 +77,8 @@ public class Ranking{
 
 	public void setItemId(int item_id) {
 		this.item_id = item_id;
-	}
-
+	}			
 	
 	
-	/*@OneToMany(targetEntity=Item.class, mappedBy="id", fetch=FetchType.EAGER)
-	private List<Item> Item;
-*/
 	
 }

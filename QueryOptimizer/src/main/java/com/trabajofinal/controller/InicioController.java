@@ -1,7 +1,13 @@
 package com.trabajofinal.controller;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -22,6 +28,7 @@ import com.trabajofinal.model.Ranking;
 import com.trabajofinal.model.User;
 import com.trabajofinal.service.ConfiguracionService;
 import com.trabajofinal.service.ConsultaService;
+import com.trabajofinal.service.ItemService;
 import com.trabajofinal.service.RankingService;
 import com.trabajofinal.service.UserService;
 import com.trabajofinal.utils.Database;
@@ -43,6 +50,10 @@ public class InicioController {
 
 	@Autowired
 	private RankingService rankingService;
+
+	@Autowired
+	private ItemService itemService;
+	
 
 	@RequestMapping(value="/inicio", method=RequestMethod.GET)	
 	public String inicio(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {
@@ -68,6 +79,10 @@ public class InicioController {
 	public String inicio(@RequestParam("query") String query, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
     	Date date = new Date();
     	Database database = new Database();
+    	if (session.getAttribute("userSession") == null){
+			return "redirect:login.html";			
+        }
+    	
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());						
 		Consulta consulta = new Consulta(query,usu.getId(),configId,date);				
 		Configuracion config = configuracionService.findById(consulta.getIdconfig());
@@ -76,18 +91,88 @@ public class InicioController {
 		
 		MachineLearning machineLearning = new MachineLearning(consulta, config);
 		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());
-		//rankingService.deleteAll();
-		Ranking ranking = new Ranking(usu.getId(),machineLearning.getRankingId(consulta.getQuery()),machineLearning.crearRankingId(rankingService.findAll()),timeAverage,date);
-		machineLearning.gestionarRanking(database, ranking);
+		int itemId = machineLearning.getItemId(consulta.getQuery());
+		//Ranking ranking = rankingService.findByItemId(itemId);		
 		
-		rankingService.save(ranking);
+		List <Ranking> rankings = rankingService.findAll();	//Todos los rankings	
+		
+		Ranking nuevoRanking = new Ranking(usu.getId(),itemId,(float)1,timeAverage,date); // null porque no esta rankeado
+		rankingService.save(nuevoRanking);
+		
+		this.compararQueries(rankings, consulta, nuevoRanking);
+		
+		
+		//Si ya existe en la tabla de ranking, le pongo el mismo ranking
+		/*if (ranking.getItemId() == nuevoRanking.getItemId()){
+			nuevoRanking.setRanking(ranking.getRanking());			
+		}*/
+		
+	//	machineLearning.gestionarRanking(database, consulta, nuevoRanking, itemService.findById(nuevoRanking.getItemId()));
+		
+		
+		//ranking.setRanking(machineLearning.crearRankingId(rankingService.findAll(),itemService.findById(nuevoRanking.getItemId())));
+		
+		///rankingService.save(nuevoRanking);
 		
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";
+    	
+    	
 	}	
 	
+	// Comparar la query alternativa con la original
+	public String compararQueries(List<Ranking> rankings, Consulta consulta, Ranking nuevoRanking){
+		
+		Double maxValue = 0.0;
+		Double minValue = 10000.0
+				;
+		for(int i = 0; i < rankings.size(); i++) {
+			Double time = rankings.get(i).getTime();
+			// Da el máximo valor
+			if (time > maxValue) {
+			    maxValue = time;
+			}
+			if (time < minValue) {
+			    minValue = time;
+			}			
+		}
+		if (nuevoRanking.getTime() > maxValue){
+			nuevoRanking.setRanking(1.0f);			
+		}
+		if (nuevoRanking.getTime() < minValue){
+			nuevoRanking.setRanking(5.0f);			
+		}
+		
+		rankingService.save(nuevoRanking);
+		
+		System.out.print("Maximo: " + maxValue + " Minimo: " + minValue);
+		
+		
+		/*// Ordenar tiempos
+		 * HashMap<Double,Integer> map = new HashMap<Double,Integer>();
 
+		for(int i = 0; i < rankings.size(); i++) {
+			System.out.println(rankings.get(i).getTime());
+			map.put(rankings.get(i).getTime(),i);			
+		}
+		
+		Map<Double,Integer> treeMap = new TreeMap<Double,Integer>(map);
+		for (Entry<Double,Integer> entry : treeMap.entrySet()) {
+			System.out.println(" Id: " + entry.getValue() + " Tiempo: " + entry.getKey());
+		}*/
+
+
+//		Double maxValue = null;
+
+	/*	if (nuevoRanking.getTime() > maxValue){
+			maxValue = nuevoRanking.getTime(); 			
+		}*/
+		
+		 		
+		return "holis";
+	}
+	
 	@RequestMapping(value="/configuracion", method=RequestMethod.GET)	
 	public String configuracion(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {		
 		User usu = new User();	

@@ -1,8 +1,12 @@
 package com.trabajofinal.model;
 
 import java.io.Serializable;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 
 @Embeddable
 public class RankingPK implements Serializable{
@@ -51,7 +55,6 @@ public class RankingPK implements Serializable{
 	}
 
 	
-
 	
 	
 	
