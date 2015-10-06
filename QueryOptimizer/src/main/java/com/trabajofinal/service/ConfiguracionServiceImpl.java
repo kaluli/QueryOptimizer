@@ -30,8 +30,8 @@ public class ConfiguracionServiceImpl implements ConfiguracionService {
 		return null;
 	}
 
-	public Configuracion findByName(String name) {
-		return configuracionRepository.findByName(name);
+	public Configuracion findByName(String name, int idUser) {
+		return configuracionRepository.findByName(name, idUser);
 	}
 	
 	

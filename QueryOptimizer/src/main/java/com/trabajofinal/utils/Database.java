@@ -2,17 +2,14 @@ package com.trabajofinal.utils;
 
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-
 import com.trabajofinal.model.Consulta;
 
 public class Database {
     SingleConnectionDataSource ds = new SingleConnectionDataSource();
 
-	public JdbcTemplate conectarBD(String database){
-		  // Sería óptimo que leyera estos datos de un archivo 
+	public JdbcTemplate conectarBD(String database){	
 	    ds.setDriverClassName("com.mysql.jdbc.Driver");
 	    String url = "jdbc:mysql://127.0.0.1:3306/" + database;	  
 	    ds.setUrl(url);

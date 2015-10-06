@@ -13,8 +13,8 @@ public interface ConfiguracionRepository extends JpaRepository<Configuracion, Lo
 	@Query("select s from Configuracion s where s.id = :id")
 	public Configuracion findById(@Param("id") int id);
 
-	@Query("select s from Configuracion s where s.name = :name")
-	public Configuracion findByName(@Param("name") String name);
+	@Query("select s from Configuracion s where s.name = :name and s.iduser = :iduser")
+	public Configuracion findByName(@Param("name") String name, @Param("iduser") int iduser);
 
 	
 	

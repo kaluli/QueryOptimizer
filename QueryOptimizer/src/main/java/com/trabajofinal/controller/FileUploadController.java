@@ -8,6 +8,7 @@ import java.util.Date;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,8 +43,9 @@ public class FileUploadController {
     public String handleFileUpload(@Valid @ModelAttribute("user") User user,
     		BindingResult result, HttpSession session, Model model, 
             @RequestParam("file") MultipartFile file){
-    	Date date = new Date();
-    	String name = file.getOriginalFilename();    	
+    	Date date = new Date();    	
+    	String fullName = file.getOriginalFilename();
+    	String name = FilenameUtils.getBaseName(fullName);
     	String path = "trabajo_final/";
         
     	if (!file.isEmpty()) {
@@ -51,21 +53,22 @@ public class FileUploadController {
                 byte[] bytes = file.getBytes();                
                 User usu = userService.findByUserName(session.getAttribute("userSession").toString());
             	
-                if (configuracionService.findByName(name) == null) {            	    	            
+                if (configuracionService.findByName(name, user.getId()) == null) {            	    	            
                 	BufferedOutputStream stream =
                         new BufferedOutputStream(new FileOutputStream(path + new File(name)));                                            	
             	
             		Configuracion configuracion = new Configuracion(
             				usu.getId(),
-            				file.getOriginalFilename(),            				
+            				name,			
             				file.getOriginalFilename(),
+            				"jdbc:mysql://127.0.0.1:3306/" + name,
             				date
         				);
 	            	
 	            	configuracionService.save(configuracion);
 	            	stream.write(bytes);
 	                stream.close();
-	                return "redirect:/cargar_database.html";
+	                return "redirect:configuracion.html";
             	}
             	else{
             		model.addAttribute("message", "Error al subir " + name + " el archivo ya existe.");            		

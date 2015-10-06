@@ -28,6 +28,7 @@ public class Configuracion {
 	
 	private String name;
 	private String file;
+	private String url;
 	private String engine;
 		
 	@Past
@@ -37,12 +38,21 @@ public class Configuracion {
 	public Configuracion(){
 	}
 	
-	public Configuracion(int iduser, String name, String file, Date created) {
+	public Configuracion(int iduser, String name, String file, String url, Date created) {
 		super();
 		this.iduser = iduser;
 		this.name = name;
+		this.url = url;
 		this.file = file;
 		this.created = created;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public int getId() {

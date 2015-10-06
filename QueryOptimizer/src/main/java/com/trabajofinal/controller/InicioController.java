@@ -1,6 +1,7 @@
 package com.trabajofinal.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -44,7 +45,11 @@ public class InicioController {
 	private RankingService rankingService;
 
 	@RequestMapping(value="/inicio", method=RequestMethod.GET)	
-	public String inicio(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {		
+	public String inicio(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {
+		if (session.getAttribute("userSession") == null){
+			return "redirect:login.html";
+		}
+		
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());
 		if (usu != null){
 			int idlogueado = usu.getId();
@@ -66,12 +71,17 @@ public class InicioController {
 		User usu = userService.findByUserName(session.getAttribute("userSession").toString());						
 		Consulta consulta = new Consulta(query,usu.getId(),configId,date);				
 		Configuracion config = configuracionService.findById(consulta.getIdconfig());
-		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName(), database));
+		model.addAttribute("resultados", consulta.gestionarConsulta(config.getName(), database));		
 		consultaService.save(consulta);
+		
 		MachineLearning machineLearning = new MachineLearning(consulta, config);
 		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());
-		Ranking ranking = machineLearning.gestionarRanking(database, usu, timeAverage, date);		
+		//rankingService.deleteAll();
+		Ranking ranking = new Ranking(usu.getId(),machineLearning.getRankingId(consulta.getQuery()),machineLearning.crearRankingId(rankingService.findAll()),timeAverage,date);
+		machineLearning.gestionarRanking(database, ranking);
+		
 		rankingService.save(ranking);
+		
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";
@@ -99,9 +109,8 @@ public class InicioController {
 
 	@RequestMapping(value="/configuracion", method=RequestMethod.POST)
 	public String configuracion(@Valid @ModelAttribute("configuracion") Configuracion configuracion, BindingResult result, HttpSession session, Model model ) {
-		User usu = new User();		
 		String nombre_user = session.getAttribute("userSession").toString();
-		usu = userService.findByUserName(nombre_user);
+		User usu = userService.findByUserName(nombre_user);
 		model.addAttribute("user", usu);
 		return "redirect:configuracion.html";
 	}

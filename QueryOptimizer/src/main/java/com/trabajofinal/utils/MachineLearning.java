@@ -14,7 +14,6 @@ import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.util.Version;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.common.Weighting;
-import org.apache.mahout.cf.taste.impl.common.RunningAverage;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
@@ -39,17 +38,13 @@ import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
 import com.trabajofinal.model.Ranking;
 import com.trabajofinal.model.User;
-import com.trabajofinal.service.RankingService;
 
 public class MachineLearning{
-	
-	@Autowired
-	private RankingService rankingService;
 	
 	private int queryId;
 	private String database;
 	private String consulta;
-	private Ranking ranking;
+	//private Ranking ranking;
 
 	private Analyzer analyzer;
 	
@@ -93,7 +88,7 @@ public class MachineLearning{
 		}				
 	}
 
-	public List<RecommendedItem> slopeOne() {
+	public List<RecommendedItem> slopeOne(int userId) {
 		RandomUtils.useTestSeed();
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("localhost");
@@ -111,14 +106,9 @@ public class MachineLearning{
 				
 				//System.out.println("average1: " + average1);
 				Recommender recommender = new SlopeOneRecommender(model,Weighting.WEIGHTED,Weighting.WEIGHTED,diffStorage);
-				System.out.println("Recommender: " + recommender);
 				
-				//recommend(long userID,int howManyRecommendations)                      
-				List <RecommendedItem> recommendations = recommender.recommend(3, 1);
-				
-	//			Estima la preferencia que tendrá el usuario 3 con el item 2, (inexistentes) en base a lo que ya hay en la bd
-	//			estimatePreference(long userID, long itemID)
-				//float recommendations = recommender.estimatePreference(3, 4);
+				//recommend(long userID,int howManyRecommendations)
+				List <RecommendedItem> recommendations = recommender.recommend(userId, 1);
 				
 				System.out.println("Recomendación: " + recommendations);
 				for (RecommendedItem recommendation : recommendations) {
@@ -166,19 +156,15 @@ public class MachineLearning{
 		} catch (IOException e) {			
 			e.printStackTrace();
 			System.out.println(e);
-		}
-		
+		}		
 		System.out.println(consulta);
-		return result;
-	
+		return result;	
 	}
 		
 	
-	public Ranking gestionarRanking(Database database, User usu, Double timeAverage, Date created) {
-		Ranking ranking = new Ranking(usu.getId(),this.getRankingId(consulta),null,timeAverage,created);					
-		this.slopeOne();		
-		return ranking;
-	
+	public Ranking gestionarRanking(Database database, Ranking ranking) {		
+		this.slopeOne(ranking.getUserId());		
+		return ranking;	
 	}
 	
 	// Con MachineLearning genero items (queries genéricas)
@@ -263,11 +249,12 @@ public class MachineLearning{
 	        }
 			return item;
 		}
-
-		
-
 	
-	/*
+	public float crearRankingId(List<Ranking> rankings) {		
+		
+		return 1;
+		
+	}
 	// Comparar la query alternativa con la original
 	private String compararVelocidadQueries(Consulta consulta, String alternativa){
 		String mas_veloz = alternativa; 		
@@ -291,5 +278,5 @@ public class MachineLearning{
 		else
 			return false;				
 	}
-*/
+
 }

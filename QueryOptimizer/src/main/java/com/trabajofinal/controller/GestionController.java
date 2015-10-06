@@ -1,9 +1,5 @@
 package com.trabajofinal.controller;
 
-
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +26,16 @@ public class GestionController {
 	
 	@RequestMapping(value="/cargar_database", method=RequestMethod.GET)
 	public String cargarDatabase(Model model, HttpSession session){
-	  	SingleConnectionDataSource ds = new SingleConnectionDataSource();
+	  	/*SingleConnectionDataSource ds = new SingleConnectionDataSource();
 	    ds.setDriverClassName("com.mysql.jdbc.Driver");
 	   
 	    ds.setUrl("jdbc:mysql://127.0.0.1:3306/tesis");
 	    ds.setUsername("root");
 	    ds.setPassword("kaluli32");
 	    JdbcTemplate jt = new JdbcTemplate(ds);	    	
-	    
-	    StringBuilder builder = new StringBuilder();
-        BufferedReader reader = null;
+	    */
+	   // StringBuilder builder = new StringBuilder();
+       // BufferedReader reader = null;
         /*try {
             reader = new BufferedReader(new FileReader("1.sql"));
             String line = null;
@@ -52,11 +48,11 @@ public class GestionController {
 
         }
         */
-	    jt.execute(builder.toString());
+	   // jt.execute(builder.toString());
 	    return null;
 
 	}
-	
+	/*
 	private void closeQuietly(Closeable c) {
         if (c != null) {
             try {
@@ -64,6 +60,7 @@ public class GestionController {
             } catch (IOException ignored) {}
         }
     }
+    */
 	
 	@RequestMapping(value="/micuenta", method=RequestMethod.GET)
 	public String mostrar(Model model, HttpSession session) {		
