@@ -8,5 +8,6 @@ public interface ItemService {
 	public Item save(Item item);
 	public Item findById(int id);
 	public List<Item> findAll();
+	public List<Item> findQueriesAlternativas(int itemId);
 
 }

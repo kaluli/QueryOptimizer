@@ -32,4 +32,9 @@ public class ItemServiceImpl implements ItemService {
 		return itemRepository.findById(id);
 	}
 
+	@Override
+	public List<Item> findQueriesAlternativas(int itemId) {
+		return itemRepository.findQueriesAlternativas(itemId);
+	}
+
 }

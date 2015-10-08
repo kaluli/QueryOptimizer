@@ -1,18 +1,14 @@
 package com.trabajofinal.controller;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,6 +20,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
+import com.trabajofinal.model.Item;
 import com.trabajofinal.model.Ranking;
 import com.trabajofinal.model.User;
 import com.trabajofinal.service.ConfiguracionService;
@@ -91,7 +88,8 @@ public class InicioController {
 		
 		MachineLearning machineLearning = new MachineLearning(consulta, config);
 		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());
-		int itemId = machineLearning.getItemId(consulta.getQuery());
+		List<String> queryParseada = machineLearning.parsearQuery(consulta.getQuery());
+		int itemId = machineLearning.getItemId(queryParseada, consulta.getQuery());
 		//Ranking ranking = rankingService.findByItemId(itemId);		
 		
 		List <Ranking> rankings = rankingService.findAll();	//Todos los rankings	
@@ -99,6 +97,7 @@ public class InicioController {
 		Ranking nuevoRanking = new Ranking(usu.getId(),itemId,(float)1,timeAverage,date); // null porque no esta rankeado
 		rankingService.save(nuevoRanking);
 		
+		List<String> queriesAlternativas = this.generarQueriesAlternativas(config, queryParseada,consulta,itemId);
 		this.compararQueries(rankings, consulta, nuevoRanking);
 		
 		
@@ -121,12 +120,73 @@ public class InicioController {
     	
 	}	
 	
-	// Comparar la query alternativa con la original
-	public String compararQueries(List<Ranking> rankings, Consulta consulta, Ranking nuevoRanking){
+	// Con MachineLearning genero queries alternativas
+	private List<String> generarQueriesAlternativas(Configuracion config, List<String> queryParseada, Consulta consulta, int itemId){
+		// Trae todas las distintas al itemId
+		String currentSqlStatement; String keyfields; String table = null; String conditions = null;
+		StringBuilder nuevaQueryAlternativa = new StringBuilder();
+
+		Boolean where = false; Boolean inner = false;  Boolean all = false;		
+		List <Item> queriesAlternativas = itemService.findQueriesAlternativas(itemId);
 		
+		currentSqlStatement = queryParseada.get(0).substring(5);
+		switch (queryParseada.get(0)){
+		case "term=select":{
+			Database database = new Database();
+			List<Map<String, Object>> keyFields = database.traerKeyFields(database, config);
+			
+			for(int i = 0; i < queryParseada.size(); i++) {
+				if (queryParseada.get(i).contentEquals("term=from")){
+					i++;						
+					table = queryParseada.get(i).substring(5); //Quita el term=
+					int index = consulta.getQuery().toLowerCase().indexOf(table); //Para caseSensitive
+					table = consulta.getQuery().substring(index, index + table.length());						
+				}
+				if (queryParseada.get(i).contentEquals("term=where")){						
+					where = true;
+					i++;
+					conditions = queryParseada.get(i).substring(5); 
+				}
+	            System.out.println(queryParseada.get(i));
+	        
+			}
+			
+			nuevaQueryAlternativa.append(currentSqlStatement);
+			if (all == true){
+				nuevaQueryAlternativa.append(" * ");
+			}
+			else{
+				nuevaQueryAlternativa.append(keyFields);
+			}
+			nuevaQueryAlternativa.append(" FROM "); 
+			nuevaQueryAlternativa.append(table);
+			if (where == true){
+				nuevaQueryAlternativa.append(" WHERE ");
+				nuevaQueryAlternativa.append(conditions);
+			}
+			
+			String queryAlternativa = nuevaQueryAlternativa.toString();
+			System.out.println(queryAlternativa);
+			
+			for(int i = 0; i < queriesAlternativas.size(); i++) {
+	            System.out.println(queriesAlternativas.get(i).getQuery());
+	        }
+			break;
+		}
+			default:
+				break;
+		}	
+		return queryParseada;
+	}
+
+	// Comparar la query alternativa con la original
+	private String compararQueries(List<Ranking> rankings, Consulta consulta, Ranking nuevoRanking){
+		/* Antes de esto, debo ver si las consultas son equivalentes y de ahi pedir el ranking 
+		 * Se ve eso en ConsultasEquivalentes
+		 * */
 		Double maxValue = 0.0;
-		Double minValue = 10000.0
-				;
+		Double minValue = 10000.0;
+		
 		for(int i = 0; i < rankings.size(); i++) {
 			Double time = rankings.get(i).getTime();
 			// Da el máximo valor

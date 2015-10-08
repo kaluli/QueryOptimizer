@@ -133,13 +133,14 @@ public class MachineLearning{
 	}	
 	
 	@Autowired
-	public List<String> clasificarQuery(String consulta) {
+	public List<String> parsearQuery(String consulta) {
 		//sqlStatements currentStatement = sqlStatements.valueOf(consulta.toUpperCase());
 		FeatureVectorEncoder encoder = new StaticWordValueEncoder("SELECT");
 		analyzer = new StandardAnalyzer(Version.LUCENE_30);
 	    List<String> result = new ArrayList<String>();
 
-		try {			
+		try {		
+			
 			TokenStream ts = analyzer.tokenStream("text", new StringReader(consulta.toLowerCase()));
 			ts.reset();
 			TermAttribute termAtt = ts.addAttribute(TermAttribute.class);
@@ -170,19 +171,19 @@ public class MachineLearning{
 	}
 			
 	// Con MachineLearning genero items (queries genéricas)
-		public int getItemId(String consulta){
-			List<String> result = this.clasificarQuery(consulta);
-			String currentStatement = result.get(0); 
+		public int getItemId(List<String> queryParseada, String consulta){
+			queryParseada = this.parsearQuery(consulta);
+			String currentStatement = queryParseada.get(0); 
 			Boolean where = false; Boolean all = false; Boolean inner = false;
 			int item = 0;
-			System.out.println(result.get(1));
-			if (result.get(1).contentEquals("term=from")){
+			System.out.println(queryParseada.get(1));
+			if (queryParseada.get(1).contentEquals("term=from")){
 				all = true;
 			}
 			
-			for(int i = 0; i < result.size(); i++) {
+			for(int i = 0; i < queryParseada.size(); i++) {
 				// Tiene conditions Item 3, 4, 5, 6
-				switch (result.get(i)){
+				switch (queryParseada.get(i)){
 					case "term=where":
 						where = true;
 						break;
@@ -223,9 +224,7 @@ public class MachineLearning{
 			
 			}	
 			break;
-			case "term=insert":{
-				System.out.println("insert acaaa");
-			
+			case "term=insert":{				
 			}
 			break;
 			case "term=update":
@@ -246,8 +245,8 @@ public class MachineLearning{
 				break;
 			}
 					
-			for(int i = 0; i < result.size(); i++) {
-	            System.out.println(result.get(i));
+			for(int i = 0; i < queryParseada.size(); i++) {
+	            System.out.println(queryParseada.get(i));
 	        }
 			return item;
 		}
@@ -269,17 +268,6 @@ public class MachineLearning{
 		
 	}
 	
-
-	
-	
-	
-	
-	// Con MachineLearning genero queries alternativas
-	private List<String> generarQueriesAlternativas(){
-		List<String> queriesAlternativas = null;
-		return queriesAlternativas;
-	}
-
 	private void actualizarRanking(){
 		
 	}
@@ -296,7 +284,5 @@ public class MachineLearning{
 		
 		
 	}
-	
-	
 
 }

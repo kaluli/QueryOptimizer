@@ -2,13 +2,16 @@ package com.trabajofinal.utils;
 
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+
+import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
 
 public class Database {
     SingleConnectionDataSource ds = new SingleConnectionDataSource();
-
+    
 	public JdbcTemplate conectarBD(String database){	
 	    ds.setDriverClassName("com.mysql.jdbc.Driver");
 	    String url = "jdbc:mysql://127.0.0.1:3306/" + database;	  
@@ -36,6 +39,16 @@ public class Database {
 		List<Map<String,Object>> resultados = jt.queryForList(consulta.getQuery());
 		consulta.setTime(database.calculaTiempoQuery(jt));
 		return resultados;
+	}
+	
+	public List<Map<String, Object>> traerKeyFields(Database database, Configuracion config){		
+		JdbcTemplate jt = this.conectarBD(config.getName());
+		Consulta query = new Consulta();
+		String queryText = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA  = 'world' AND TABLE_NAME = 'City'";
+		query.setQuery(queryText);
+		List<Map<String, Object>> result = this.ejecutarQuery(jt, query, database);
+		this.desconectarBD();
+		return result;
 	}
 	
 	public JdbcTemplate limpiarCache(JdbcTemplate jt){
