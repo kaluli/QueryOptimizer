@@ -41,10 +41,10 @@ public class Database {
 		return resultados;
 	}
 	
-	public List<Map<String, Object>> traerKeyFields(Database database, Configuracion config){		
+	public List<Map<String, Object>> traerKeyFields(Database database, Configuracion config, String table){		
 		JdbcTemplate jt = this.conectarBD(config.getName());
 		Consulta query = new Consulta();
-		String queryText = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA  = 'world' AND TABLE_NAME = 'City'";
+		String queryText = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA  = '" + config.getName() + "' AND TABLE_NAME = '"+ table + "'";
 		query.setQuery(queryText);
 		List<Map<String, Object>> result = this.ejecutarQuery(jt, query, database);
 		this.desconectarBD();

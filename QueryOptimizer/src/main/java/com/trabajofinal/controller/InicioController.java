@@ -1,6 +1,8 @@
 package com.trabajofinal.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,7 +10,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -98,7 +99,6 @@ public class InicioController {
 		rankingService.save(nuevoRanking);
 		
 		List<String> queriesAlternativas = this.generarQueriesAlternativas(config, queryParseada,consulta,itemId);
-		this.compararQueries(rankings, consulta, nuevoRanking);
 		
 		
 		//Si ya existe en la tabla de ranking, le pongo el mismo ranking
@@ -122,8 +122,11 @@ public class InicioController {
 	
 	// Con MachineLearning genero queries alternativas
 	private List<String> generarQueriesAlternativas(Configuracion config, List<String> queryParseada, Consulta consulta, int itemId){
+		Database database = new Database();
 		// Trae todas las distintas al itemId
-		String currentSqlStatement; String keyfields; String table = null; String conditions = null;
+	    List<String> keyFieldsArray = new ArrayList<String>();
+		String currentSqlStatement; String table = null; String conditions = null; String keyFields = null;
+		String queryAlternativa = null;
 		StringBuilder nuevaQueryAlternativa = new StringBuilder();
 
 		Boolean where = false; Boolean inner = false;  Boolean all = false;		
@@ -131,31 +134,52 @@ public class InicioController {
 		
 		currentSqlStatement = queryParseada.get(0).substring(5);
 		switch (queryParseada.get(0)){
-		case "term=select":{
-			Database database = new Database();
-			List<Map<String, Object>> keyFields = database.traerKeyFields(database, config);
-			
-			for(int i = 0; i < queryParseada.size(); i++) {
+		case "term=select":{			
+			for(int i = 0; i < queryParseada.size(); i++) { 
+				// *** TABLE
 				if (queryParseada.get(i).contentEquals("term=from")){
 					i++;						
 					table = queryParseada.get(i).substring(5); //Quita el term=
 					int index = consulta.getQuery().toLowerCase().indexOf(table); //Para caseSensitive
 					table = consulta.getQuery().substring(index, index + table.length());						
 				}
+				// *** CONDITIONS
 				if (queryParseada.get(i).contentEquals("term=where")){						
 					where = true;
 					i++;
-					conditions = queryParseada.get(i).substring(5); 
-				}
-	            System.out.println(queryParseada.get(i));
-	        
+					conditions = queryParseada.get(i).substring(5); // Hacer lo mismo que para keyfields
+				}	            
 			}
-			
-			nuevaQueryAlternativa.append(currentSqlStatement);
+
+			// *** KEYFIELDS
+			List<Map<String, Object>> results = database.traerKeyFields(database, config, table);
+			for (Map<String, Object> result : results) {
+	            HashMap<String, Object> map = (HashMap<String, Object>) result;
+	            for (Object key : map.keySet()) {
+	            	System.out.println(map.get(key).toString());
+	            	keyFieldsArray.add(map.get(key).toString());	                
+	            }	        
+	        }			
+			keyFields = keyFieldsArray.toString().replace("[", " ").replace("]", " ");			
+	    	System.out.println(keyFields);
+	    	
+	    	//*** EXTRAS -> GROUP BY, ORDER BY, HAV
+	    	
+	    	for(int i = 0; i < queriesAlternativas.size(); i++) {
+	            queryAlternativa = queriesAlternativas.get(i).getQuery();
+	            queryAlternativa = queryAlternativa.replace("%table%", table).replace("%keyfields%", keyFields);
+	            this.compararQueries(config, consulta.getQuery(), queryAlternativa);
+	            System.out.println(queryAlternativa);
+	        }
+	    	
+	    	
+		/*	nuevaQueryAlternativa.append(currentSqlStatement);
 			if (all == true){
 				nuevaQueryAlternativa.append(" * ");
 			}
 			else{
+				keyFields = keyFieldsArray.toString().replace("[", " ");
+				keyFields = keyFields.replace("]", " ");
 				nuevaQueryAlternativa.append(keyFields);
 			}
 			nuevaQueryAlternativa.append(" FROM "); 
@@ -167,10 +191,8 @@ public class InicioController {
 			
 			String queryAlternativa = nuevaQueryAlternativa.toString();
 			System.out.println(queryAlternativa);
+			*/
 			
-			for(int i = 0; i < queriesAlternativas.size(); i++) {
-	            System.out.println(queriesAlternativas.get(i).getQuery());
-	        }
 			break;
 		}
 			default:
@@ -180,14 +202,14 @@ public class InicioController {
 	}
 
 	// Comparar la query alternativa con la original
-	private String compararQueries(List<Ranking> rankings, Consulta consulta, Ranking nuevoRanking){
+	private String compararQueries(Configuracion config, String consulta1, String consulta2){
 		/* Antes de esto, debo ver si las consultas son equivalentes y de ahi pedir el ranking 
 		 * Se ve eso en ConsultasEquivalentes
 		 * */
 		Double maxValue = 0.0;
 		Double minValue = 10000.0;
 		
-		for(int i = 0; i < rankings.size(); i++) {
+		/*for(int i = 0; i < rankings.size(); i++) {
 			Double time = rankings.get(i).getTime();
 			// Da el máximo valor
 			if (time > maxValue) {
@@ -202,9 +224,9 @@ public class InicioController {
 		}
 		if (nuevoRanking.getTime() < minValue){
 			nuevoRanking.setRanking(5.0f);			
-		}
+		}*/
 		
-		rankingService.save(nuevoRanking);
+		//rankingService.save(nuevoRanking);
 		
 		System.out.print("Maximo: " + maxValue + " Minimo: " + minValue);
 		
