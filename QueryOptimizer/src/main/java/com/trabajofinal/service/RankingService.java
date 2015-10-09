@@ -9,6 +9,8 @@ public interface RankingService {
 	public List<Ranking> findAll();
 	public void deleteAll();
 	public Ranking findByItemId(int itemId);
+	public Ranking findByUserId(int iduser);
+	public void deleteByUserId(int iduser);
 	
 	
 }

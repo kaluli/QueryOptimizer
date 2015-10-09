@@ -60,9 +60,9 @@ public class MachineLearning{
 	}
 
 	
-	public Ranking gestionarRanking(Database database, Consulta consulta, Ranking ranking, Item item) {		
+	public List<RecommendedItem> gestionarRanking(Database database, Consulta consulta, Ranking ranking, Item item) {		
 		List<RecommendedItem> recomendaciones = this.slopeOne(ranking.getUserId());		
-		return ranking;	
+		return recomendaciones;	
 	}
 	
 	public List<RecommendedItem> recomendar() {
@@ -85,7 +85,7 @@ public class MachineLearning{
 			List<RecommendedItem> recommendations = recommender.recommend(2, 3);
 			for (RecommendedItem recommendation : recommendations) {
 				  System.out.println(recommendation);
-				}
+			}
 			
 			return recommendations;	
 			
@@ -139,8 +139,7 @@ public class MachineLearning{
 		analyzer = new StandardAnalyzer(Version.LUCENE_30);
 	    List<String> result = new ArrayList<String>();
 
-		try {		
-			
+		try {					
 			TokenStream ts = analyzer.tokenStream("text", new StringReader(consulta.toLowerCase()));
 			ts.reset();
 			TermAttribute termAtt = ts.addAttribute(TermAttribute.class);
@@ -240,6 +239,7 @@ public class MachineLearning{
 			case "term=use":
 				break;
 			case "term=show":
+				System.out.println("entra");
 				break;
 			default:
 				break;
@@ -256,8 +256,6 @@ public class MachineLearning{
 		    
 			System.out.println(rankings.get(i).getItemId());
 		    
-		    
-		    
 			//List<Item> items = itemService.findAll();
 			//Item item = itemService.findById(1);
         
@@ -267,22 +265,6 @@ public class MachineLearning{
 		return 1;
 		
 	}
-	
-	private void actualizarRanking(){
 		
-	}
-	
-	// Que traiga los mismos resultados que la query original
-	private boolean validarResultados(String query, String resultados){
-		if (query == resultados)
-			return true;
-		else
-			return false;				
-	}
-
-	public void addItem(Ranking ranking) {
-		
-		
-	}
 
 }

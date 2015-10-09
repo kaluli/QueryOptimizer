@@ -39,6 +39,16 @@ public class RankingServiceImpl implements RankingService {
 		return rankingRepository.findByItemId(item_id);
 	}
 
+	@Override
+	public Ranking findByUserId(int iduser) {
+		return rankingRepository.findByUserId(iduser);
+	}
+
+	@Override
+	public void deleteByUserId(int iduser) {
+		rankingRepository.deleteByUserId(iduser);			
+	}
+
 	
 
 }

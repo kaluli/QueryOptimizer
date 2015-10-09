@@ -50,11 +50,9 @@ public class Consulta {
 	}
 
 			
-	public List<Map<String, Object>> gestionarConsulta(String db, Database database){
-		// conectar a la bd seleccionada
-		JdbcTemplate jt = database.conectarBD(db);		
-		List<Map<String, Object>> result = database.ejecutarQuery(jt, this, database);
-		database.desconectarBD();
+	public List<Map<String, Object>> gestionarConsulta(Configuracion config, Database database){
+		// conectar a la bd seleccionada		
+		List<Map<String, Object>> result = database.ejecutarQuery(config, this, database);		
 		return result;	
 	}	
 

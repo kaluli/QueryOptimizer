@@ -1,5 +1,6 @@
 package com.trabajofinal.utils;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,20 +34,33 @@ public class Database {
 		return jt.queryForObject("SELECT SUM(DURATION) FROM INFORMATION_SCHEMA.PROFILING", Double.class);		
 	}
 	
-	public List<Map<String,Object>> ejecutarQuery(JdbcTemplate jt, Consulta consulta, Database database) {
-		this.limpiarCache(jt);		
-		jt.execute("SET @@profiling = 1;");
-		List<Map<String,Object>> resultados = jt.queryForList(consulta.getQuery());
-		consulta.setTime(database.calculaTiempoQuery(jt));
+	public List<Map<String,Object>> ejecutarQuery(Configuracion config, Consulta consulta, Database database) {
+		JdbcTemplate jt = this.conectarBD(config.getName());
+		List<Map<String,Object>> resultados = null;
+		try{
+			this.limpiarCache(jt);
+			jt.execute("SET @@profiling = 1;");
+			resultados = jt.queryForList(consulta.getQuery());
+			consulta.setTime(database.calculaTiempoQuery(jt));		
+		}
+		catch (Exception ex){
+			System.out.println("Excepción de MySQL");
+			ex.printStackTrace();
+		}
+		this.desconectarBD();
 		return resultados;
 	}
-	
+
+	public JdbcTemplate createJt(String db){
+		return this.conectarBD(db);		
+	}
+
 	public List<Map<String, Object>> traerKeyFields(Database database, Configuracion config, String table){		
 		JdbcTemplate jt = this.conectarBD(config.getName());
-		Consulta query = new Consulta();
+		Consulta query = new Consulta();		
 		String queryText = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA  = '" + config.getName() + "' AND TABLE_NAME = '"+ table + "'";
 		query.setQuery(queryText);
-		List<Map<String, Object>> result = this.ejecutarQuery(jt, query, database);
+		List<Map<String, Object>> result = this.ejecutarQuery(config, query, database);
 		this.desconectarBD();
 		return result;
 	}
