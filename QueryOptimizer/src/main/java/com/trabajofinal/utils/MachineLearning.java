@@ -65,7 +65,7 @@ public class MachineLearning{
 		return recomendaciones;	
 	}
 	
-	public List<RecommendedItem> recomendar() {
+	public List<RecommendedItem> recomendar(int userId) {
 		RandomUtils.useTestSeed();
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("localhost");
@@ -74,15 +74,15 @@ public class MachineLearning{
 		dataSource.setDatabaseName("tesis");
 		
 		System.out.println("query: " + queryId + "database: " + database);
-		JDBCDataModel model = new MySQLJDBCDataModel(dataSource, "ranking_queries", 
+		JDBCDataModel model = new MySQLJDBCDataModel(dataSource, "rankings", 
 				"user_id","item_id", "ranking", null);
 		System.out.println(model);
 		try {
 			UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-			UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
+			UserNeighborhood neighborhood = new ThresholdUserNeighborhood(1, similarity, model);
 			Recommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
 			//UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
-			List<RecommendedItem> recommendations = recommender.recommend(2, 3);
+			List<RecommendedItem> recommendations = recommender.recommend(userId, 3);
 			for (RecommendedItem recommendation : recommendations) {
 				  System.out.println(recommendation);
 			}

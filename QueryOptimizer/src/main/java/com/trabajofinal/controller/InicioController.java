@@ -92,61 +92,80 @@ public class InicioController {
 		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());
 		List<String> queryParseada = machineLearning.parsearQuery(consulta.getQuery());
 		int itemId = machineLearning.getItemId(queryParseada, consulta.getQuery());
-		if (rankingService.findByUserId(consulta.getIduser()) != null){
-			rankingService.deleteByUserId(consulta.getIduser());			
-		}
-		Ranking nuevoRanking = new Ranking(usu.getId(),itemId,(float)1,timeAverage,date); // 1 el ranking más bajo por defecto
-		rankingService.save(nuevoRanking);
 		model.addAttribute("recomendacion", "No hay recomendaciones");
 		if (itemId != 0){
-			this.analizarQueriesAlternativas(resultados, itemService.findQueriesAlternativas(itemId), queryParseada, config, consulta, itemId);
-			
+			List<Item> queriesAlternativas = itemService.findQueriesAlternativas(itemId);
+			entrenarModelo(resultados, queriesAlternativas ,queryParseada, config, consulta,itemId);
+			Ranking nuevoRanking = new Ranking(usu.getId(),itemId,(float)1,timeAverage,date); // 1 el ranking más bajo por defecto
+			rankingService.save(nuevoRanking);
 			List<RecommendedItem> recomendaciones = machineLearning.gestionarRanking(database, consulta, nuevoRanking, itemService.findById(nuevoRanking.getItemId()));
 			if (recomendaciones.size() > 0){
 				for (RecommendedItem recommendation : recomendaciones) {	
 					if (recommendation.getValue() > 0){
 						//this.compararQueries(config, resultados, consulta, consulta2, itemId, queriesAlternativas.get(i).getId());
 						String queryAlternativaRecomendada = this.crearQueryAlternativa(config, consulta, itemService.findById((int)recommendation.getItemID()).getQuery(), this.crearFields(config, queryParseada, consulta));
-						System.out.println(queryAlternativaRecomendada);	
-						model.addAttribute("recomendacion", queryAlternativaRecomendada);
+						Consulta queryAlternativa = new Consulta(queryAlternativaRecomendada,consulta.getIduser(),consulta.getIdconfig(),date);
+						if (this.compararQueries(config, resultados, consulta,queryAlternativa, itemId,(int)recommendation.getItemID()) == true){
+							System.out.println(queryAlternativaRecomendada);	
+							model.addAttribute("recomendacion", queryAlternativaRecomendada);
+						}
 					}
 				}	
 			}			
-		}
+			
+		}	
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("user", usu);		
 		return "inicio";    	    	
 	}		
 	
+	private void entrenarModelo(List<Map<String, Object>> resultados, List<Item> queriesAlternativas,List<String> queryParseada, Configuracion config, Consulta consulta, int itemId){		
+		String queryAlternativa = null;		
+		String table = this.crearFields(config,queryParseada,consulta).get("table").toString();
+		String keyFields = this.crearFields(config,queryParseada,consulta).get("keyFields").toString();
+		String conditions = this.crearFields(config,queryParseada,consulta).get("conditions").toString();
+		Float max = 5f; Float min = 1f; Float puntajeAlternativa; Float puntajeOriginal;
+		rankingService.deleteAll();
+		for(int i = 0; i < queriesAlternativas.size(); i++) {
+            queryAlternativa = queriesAlternativas.get(i).getQuery();
+            queryAlternativa = queryAlternativa.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions);            
+            Consulta consulta2 = new Consulta(queryAlternativa, consulta.getIduser(),consulta.getIdconfig(),consulta.getCreated());
+            int itemConsultaAlternativa = queriesAlternativas.get(i).getId();
+            
+            for(int j = 1; j < 10; j++){
+	            if (this.compararQueries(config, resultados, consulta, consulta2, itemId, queriesAlternativas.get(i).getId()) == true){
+	            	if (consulta2.getTime() < consulta.getTime()){
+	            		puntajeAlternativa = max;
+	            		puntajeOriginal = min;
+	            	}
+	            	else{
+	            		puntajeAlternativa = min;
+	            		puntajeOriginal = max;						
+	            	}
+					Ranking rankingItem = new Ranking (j,itemConsultaAlternativa,puntajeAlternativa,consulta2.getTime(),consulta.getCreated());
+					rankingService.save(rankingItem);
+					Ranking ranking = new Ranking (j,itemId,puntajeOriginal,consulta.getTime(),consulta.getCreated());
+					rankingService.save(ranking);
+	            }
+		    }           
+        }	    	
+	}
+	
 	private String crearQueryAlternativa(Configuracion config, Consulta consulta, String queryParseadaRecomendada, Map<String,Object> fields){
 		String queryAlternativaRecomendada = queryParseadaRecomendada;
 		String table = fields.get("table").toString();
 		String keyFields = fields.get("keyFields").toString();
-       
-		queryAlternativaRecomendada = queryAlternativaRecomendada.replace("%table%", table).replace("%keyfields%", keyFields);
+		String conditions = fields.get("conditions").toString();
+		
+		queryAlternativaRecomendada = queryAlternativaRecomendada.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions);
 		return queryAlternativaRecomendada;
-	}
-	
-	private void analizarQueriesAlternativas(List<Map<String, Object>> resultados, List<Item> queriesAlternativas,List<String> queryParseada, Configuracion config, Consulta consulta, int itemId){
-	String queryAlternativa = null;
-	
-		String table = this.crearFields(config,queryParseada,consulta).get("table").toString();
-		String keyFields = this.crearFields(config,queryParseada,consulta).get("keyFields").toString();
-		
-		for(int i = 0; i < queriesAlternativas.size(); i++) {
-            queryAlternativa = queriesAlternativas.get(i).getQuery();
-            queryAlternativa = queryAlternativa.replace("%table%", table).replace("%keyfields%", keyFields);
-            Consulta consulta2 = new Consulta(queryAlternativa, consulta.getIduser(),consulta.getIdconfig(),consulta.getCreated());
-            this.compararQueries(config, resultados, consulta, consulta2, itemId, queriesAlternativas.get(i).getId());            
-        }	    
-		
 	}	
 	
 	private Map<String,Object> crearFields(Configuracion config, List<String> queryParseada, Consulta consulta){
 		Database database = new Database();
 		Map<String,Object> fields = new HashMap<String,Object>();
 		List<String> keyFieldsArray = new ArrayList<String>();
-		String table = null; String conditions = null; String keyFields = null;
+		String table = ""; String conditions = ""; String keyFields = "";
 	
 		switch (queryParseada.get(0)){
 			case "term=select":{			
@@ -161,8 +180,20 @@ public class InicioController {
 					// *** CONDITIONS
 					if (queryParseada.get(i).contentEquals("term=where")){						
 						i++;
-						conditions = queryParseada.get(i).substring(5); // Hacer lo mismo que para keyfields
-					}	            
+						int index = consulta.getQuery().indexOf("where");
+						conditions = consulta.getQuery().substring(index + "where".length(), consulta.getQuery().length());
+						conditions = conditions.replace(";", " ");			
+
+						System.out.println(conditions);
+					}	         
+					if (queryParseada.get(i).contentEquals("term=inner join")){						
+						i++;
+						int index = consulta.getQuery().indexOf("where");
+						conditions = consulta.getQuery().substring(index + "where".length(), consulta.getQuery().length());
+						conditions = conditions.replace(";", " ");			
+
+						System.out.println(conditions);
+					}	         
 				}
 			break;
 			}
@@ -193,14 +224,8 @@ public class InicioController {
 	private Boolean compararQueries(Configuracion config, List<Map<String, Object>> resultadosConsultaOriginal,Consulta consultaOriginal, Consulta consultaAlternativa, int itemConsultaOriginal, int itemConsultaAlternativa){
 		Database database = new Database();				
 		List<Map<String, Object>> resultadosConsulta2 = database.ejecutarQuery(config, consultaAlternativa, database);
-
 		if (resultadosConsultaOriginal.equals(resultadosConsulta2)){
-			if (consultaAlternativa.getTime() < consultaOriginal.getTime()){
-				Ranking rankingItem = new Ranking (consultaAlternativa.getIduser(),itemConsultaAlternativa,(float)5,consultaAlternativa.getTime(),consultaOriginal.getCreated());
-				rankingService.save(rankingItem);				
-			}
-			// Escribir en la tabla ConsultasEquivalentes
-			return true;			
+			return true;					
 		}
 		else
 			return false;			

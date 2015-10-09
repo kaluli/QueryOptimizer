@@ -35,12 +35,12 @@ public class RankingServiceImpl implements RankingService {
 
 	
 	@Transactional
-	public Ranking findByItemId(int item_id) {
+	public List<Ranking> findByItemId(int item_id) {
 		return rankingRepository.findByItemId(item_id);
 	}
 
 	@Override
-	public Ranking findByUserId(int iduser) {
+	public List<Ranking> findByUserId(int iduser) {
 		return rankingRepository.findByUserId(iduser);
 	}
 
