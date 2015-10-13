@@ -49,6 +49,11 @@ public class RankingServiceImpl implements RankingService {
 		rankingRepository.deleteByUserId(iduser);			
 	}
 
+	@Override
+	public Double getTimeAverage(int itemID) {
+		return rankingRepository.getTimeAverage(itemID);
+	}
+
 	
 
 }

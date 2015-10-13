@@ -28,4 +28,7 @@ public interface RankingRepository extends JpaRepository<Ranking, Long> {
 	@Transactional
 	@Query("delete from Ranking s where  s.user_id = :user_id ")
 	public void deleteByUserId(@Param("user_id") int user_id);
+	
+	@Query("select avg(s.time) from Ranking s where s.item_id = :item_id")
+	public Double getTimeAverage(@Param("item_id") int itemID);
 }

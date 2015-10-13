@@ -174,7 +174,10 @@ public class MachineLearning{
 			queryParseada = this.parsearQuery(consulta);
 			String currentStatement = queryParseada.get(0); 
 			Boolean where = false; Boolean all = false; Boolean inner = false;
-			int item = 0;
+			Boolean right = false; Boolean join = false; Boolean left = false;
+			Boolean group = false; Boolean having = false; Boolean cross = false;
+			
+			int item = 0; 
 			System.out.println(queryParseada.get(1));
 			if (queryParseada.get(1).contentEquals("term=from")){
 				all = true;
@@ -188,6 +191,15 @@ public class MachineLearning{
 						break;
 					case "term=inner":
 						inner = true;
+						break;
+					case "term=left":
+						left = true;
+						break;
+					case "term=right":
+						right = true;
+						break;
+					case "term=join":
+						join = true;
 						break;
 					default:
 						break;
@@ -211,14 +223,51 @@ public class MachineLearning{
 				if ((all == true) && (where == true) && (inner == true)){
 					item = 5;
 				}
-				if ((all == false) && (where == true) && (inner == true)){
+				if ((all == false) && (where == false) && (inner == true)){
 					item = 6;
 				}
-				// Select anidados
-				/*if ((all == true) && (where == true) && (inner == true)){
+				if ((all == false) && (where == true) && (inner == true)){
 					item = 7;
+				}
+				if ((all == true) && (where == true) && (inner == true)){
+					item = 8;
+				}
+				/*if ((all == true) && (where == false) && (inner == true)){
+					item = 9;//anidados
 				}*/
-				
+				/*if ((all == true) && (where == false) && (group == true) && (having == true)){
+					item = 10;
+				}
+				if ((all == false) && (where == false) && (group == true) && (having == true)){
+					item = 11;
+				}*/
+				if ((all == true) && (where == false) && (group == true) && (having == false)){
+					item = 12;
+				}
+				if ((all == false) && (where == false) && (group == true) && (having == false)){
+					item = 13;
+				}
+				if ((all == true) && (where == false) && (left == true)){
+					item = 14;
+				}
+				if ((all == true) && (where == false) && (left == true) && (cross== true)){
+					item = 15;
+				}
+				if ((all == false) && (where == false) && (left == true) && (cross== false)){
+					item = 16;
+				}
+				if ((all == true) && (where == false) && (right == true)){
+					item = 17;
+				}
+				if ((all == false) && (where == false) && (right == true)){
+					item = 18;
+				}
+				if ((all == false) && (inner == true) && (group == true)){
+					item = 19;
+				}
+				if ((all == true) && (inner == true) && (where == true) && (group == true)){
+					item = 20;
+				}
 				System.out.println("Item: " + item);
 			
 			}	

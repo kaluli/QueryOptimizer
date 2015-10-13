@@ -11,6 +11,7 @@ public interface RankingService {
 	public List<Ranking> findByItemId(int itemId);
 	public List<Ranking>findByUserId(int iduser);
 	public void deleteByUserId(int iduser);
+	public Double getTimeAverage(int itemID);
 	
 	
 }

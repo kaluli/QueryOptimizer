@@ -45,7 +45,7 @@ public class Consulta {
 	public Consulta(String query, int iduser, int idconfig, Date created) {
 		this.query = query;
 		this.iduser = iduser;
-		this.idconfig = idconfig;
+		this.idconfig = idconfig;		
 		this.created = created;
 	}
 
