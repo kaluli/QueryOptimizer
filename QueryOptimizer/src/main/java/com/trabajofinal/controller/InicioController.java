@@ -138,7 +138,7 @@ public class InicioController {
             Consulta consulta2 = new Consulta(queryAlternativa, consulta.getIduser(),consulta.getIdconfig(),consulta.getCreated());
             int itemConsultaAlternativa = queriesAlternativas.get(i).getId();
             
-            for(int j = 2; j < 100; j++){
+            for(int j = 2; j < 50; j++){
 	            if (this.compararQueries(config, consulta, consulta2, itemId, queriesAlternativas.get(i).getId()) == true){
 	            	if (consulta2.getTime() < consulta.getTime()){
 	            		// La alternativa es mejor

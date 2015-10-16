@@ -48,6 +48,8 @@ public class MachineLearning{
 	//private Ranking ranking;
 
 	private Analyzer analyzer;
+	private char[] termBuffers;
+	private int termLen;
 	
 	public MachineLearning() {
 	}
@@ -56,7 +58,7 @@ public class MachineLearning{
 		
 		//this.queryId = ranking.getItemId();
 		this.database = config.getName();
-		this.consulta = consulta.getQuery();		
+		this.setConsulta(consulta.getQuery());		
 	}
 
 	
@@ -133,9 +135,7 @@ public class MachineLearning{
 	}	
 	
 	@Autowired
-	public List<String> parsearQuery(String consulta) {
-		//sqlStatements currentStatement = sqlStatements.valueOf(consulta.toUpperCase());
-		FeatureVectorEncoder encoder = new StaticWordValueEncoder("SELECT");
+	public List<String> parsearQuery(String consulta) {		
 		analyzer = new StandardAnalyzer(Version.LUCENE_30);
 	    List<String> result = new ArrayList<String>();
 
@@ -144,19 +144,12 @@ public class MachineLearning{
 			ts.reset();
 			TermAttribute termAtt = ts.addAttribute(TermAttribute.class);
 
-			// crear el vector para la nueva consulta
-			Vector vector = new RandomAccessSparseVector(10000);
 			while (ts.incrementToken()) {
-				char[] termBuffer = termAtt.termBuffer();
-				int termLen = termAtt.termLength();
+				setTermBuffers(termAtt.termBuffer());
+				setTermLen(termAtt.termLength());
 				if (termAtt.termLength() != 0){
-			        result.add(ts.getAttribute(TermAttribute.class).toString());
-				//	Encode into vector size 100
-					String word = new String(termBuffer, 0, termLen);
-					encoder.addToVector(word, 1, vector);
-				//	Add word w to vector "vector"
-				}
-					
+			        result.add(ts.getAttribute(TermAttribute.class).toString());						
+				}					
 			}
 			ts.end();
 			ts.close();
@@ -313,6 +306,30 @@ public class MachineLearning{
         }
 		return 1;
 		
+	}
+
+	public char[] getTermBuffers() {
+		return termBuffers;
+	}
+
+	public void setTermBuffers(char[] termBuffers) {
+		this.termBuffers = termBuffers;
+	}
+
+	public int getTermLen() {
+		return termLen;
+	}
+
+	public void setTermLen(int termLen) {
+		this.termLen = termLen;
+	}
+
+	public String getConsulta() {
+		return consulta;
+	}
+
+	public void setConsulta(String consulta) {
+		this.consulta = consulta;
 	}
 		
 
