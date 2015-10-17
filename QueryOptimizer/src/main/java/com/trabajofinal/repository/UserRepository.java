@@ -13,11 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	
 	@Query("select s from User s where s.username = :username")
 	public User findByUserName(@Param("username") String username);
-
-	/*@Query("select s from UserProfiles s where s.nombre like %:usuario% or s.apellido like %:usuario% or s.user like %:username%")
-	public List<User> findbyName(@Param("user") String user);
-*/
+	
 	@Query("select s from User s where s.id = :id")
-	public User findbyId(@Param("id") int id); // Por que anda?
+	public User findbyId(@Param("id") int id); 
 	
 }

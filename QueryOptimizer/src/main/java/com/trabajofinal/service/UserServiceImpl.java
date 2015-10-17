@@ -1,12 +1,17 @@
 package com.trabajofinal.service;
 
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 import com.trabajofinal.model.User;
 import com.trabajofinal.repository.UserRepository;
 
@@ -24,10 +29,14 @@ public class UserServiceImpl implements UserService {
 	
 	public User findByLogin(String user, String password) {	
 		User usu = userRepository.findByUserName(user);
-		
-		if(usu != null && usu.getPassword().equals(password)) {
-			return usu;
-		} 
+		if (usu != null){		
+			Hasher hasher = Hashing.md5().newHasher();
+			hasher.putString(password);			
+			String hashedPass = hasher.hash().toString();		
+			if(usu.getPassword().equals(hashedPass)) {
+				return usu;
+			}				
+		}
 		
 		return null;		
 	}

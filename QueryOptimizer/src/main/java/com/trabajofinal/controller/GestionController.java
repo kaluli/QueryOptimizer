@@ -162,7 +162,7 @@ public class GestionController {
 	public String cambiarpassword(@Valid @ModelAttribute("user") User user, BindingResult result, Model model, HttpSession session) {		
 		if(result.hasErrors()) {
 			return "cambiarpassword";
-		} else if(userService.findByUserName(user.getUsername()) != null) {
+		} else if(userService.findByUserName(user.getUser()) != null) {
 			model.addAttribute("message", "El nombre de user existe. Prueba con otro");
 			return "cambiarpassword";
 		} else {
@@ -171,7 +171,7 @@ public class GestionController {
 			String hashedPass = encoder.encode(pass.getBytes());
 			user.setPassword(hashedPass);*/	       
 			userService.save(user);
-			session.setAttribute("userSession", user.getUsername());
+			session.setAttribute("userSession", user.getUser());
 			model.addAttribute("message", "Se guardaron los datos del user");
 			//model.addAttribute("user", session.getAttribute("user"));
 			return "redirect:login.html";

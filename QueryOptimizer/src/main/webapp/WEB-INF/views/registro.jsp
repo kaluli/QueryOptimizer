@@ -1,4 +1,4 @@
-<%@ include file="/WEB-INF/views/includes/header.jsp" %>
+<%@ include file="/WEB-INF/views/includes/header.jsp" %>  
 <title>Iniciar Sesión</title>
 <link href="datepicker/css/datepicker.css" rel="stylesheet" />
 
@@ -40,7 +40,7 @@
 
 		<div class="navbar-collapse collapse navbar-responsive-collapse">
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="/trabajofinal">Inicio</a></li>
+				<li><a href="/programacionII">Inicio</a></li>
 				<li class="active"><a href="registro.html">Registro</a></li>
 				<li><a href="login.html">Iniciar Sesión</a></li>				
 			</ul>
@@ -65,16 +65,16 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-lg-12">
-						<form:form method="post" class="bs-example form-horizontal" modelAttribute="user">
+						<form:form method="post" class="bs-example form-horizontal" commandName="user">
 							<fieldset>
 								<legend>Formulario de Registro</legend>
 
 								<div class="form-group">
-									<label for="usernameInput" class="col-lg-3 control-label">Usuario</label>
+									<label for="userInput" class="col-lg-3 control-label">Usuario</label>
 									<div class="col-lg-9">
-										<form:input type="text" class="form-control" path="username"
-											id="usernameInput" placeholder="Usuario" />
-										<form:errors path="username" cssClass="error" />
+										<form:input type="text" class="form-control" path="user"
+											id="userInput" placeholder="Usuario" />
+										<form:errors path="user" cssClass="error" />
 									</div>
 								</div>
 
@@ -90,18 +90,18 @@
 								<div class="form-group">
 									<label for="nombreInput" class="col-lg-3 control-label">Nombre</label>
 									<div class="col-lg-9">
-										<form:input type="text" class="form-control" path="UserProfile.nombre"
+										<form:input type="text" class="form-control" path="nombre"
 											id="nombreInput" placeholder="Nombre" />
-										<form:errors path="UserProfile.nombre" cssClass="error" />
+										<form:errors path="nombre" cssClass="error" />
 									</div>
 								</div>
 
 								<div class="form-group">
 									<label for="apellidoInput" class="col-lg-3 control-label">Apellido</label>
 									<div class="col-lg-9">
-										<form:input type="text" class="form-control" path="UserProfile.apellido"
+										<form:input type="text" class="form-control" path="apellido"
 											id="apellidoInput" placeholder="Apellido" />
-										<form:errors path="UserProfile.apellido" cssClass="error" />
+										<form:errors path="apellido" cssClass="error" />
 									</div>
 								</div>
 
@@ -109,9 +109,9 @@
 									<label for="nacimientoInput" class="col-lg-3 control-label">Fecha de Nacimiento</label>
 									<div class="date form_date col-lg-9" data-date-format="mm/dd/yyyy" data-date-viewmode="years">
 										<form:input type="text" class="form-control"											
-											path="UserProfile.nacimiento" id="nacimientoInput"
+											path="nacimiento" id="nacimientoInput"
 											placeholder="Fecha de Nacimiento" />
-										<form:errors path="UserProfile.nacimiento" cssClass="error" />
+										<form:errors path="nacimiento" cssClass="error" />
 									</div>
 								</div>
 
@@ -120,9 +120,9 @@
 										</label>
 									<div class="col-lg-9">
 										<form:input type="text" class="form-control"
-											path="UserProfile.email" id="emailInput"
+											path="email" id="emailInput"
 											placeholder="Email" />
-										<form:errors path="UserProfile.email" cssClass="error" />
+										<form:errors path="email" cssClass="error" />
 									</div>
 								</div>
 

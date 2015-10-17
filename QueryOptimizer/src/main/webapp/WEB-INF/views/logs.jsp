@@ -11,7 +11,7 @@
 			<div class="row" id="cuadro">												
 					<div class="logs">
 						<table id="t01">
-						<caption><h3>Log de: <c:out value="${user.username}"/></h3></caption>						
+						<caption><h3>Log de: <c:out value="${user.user}"/></h3></caption>						
 						<tr>
 						    <th>Consulta</th>
 						    <th>Duración</th> 

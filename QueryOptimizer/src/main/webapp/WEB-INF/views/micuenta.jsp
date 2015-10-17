@@ -18,12 +18,12 @@
 				<div class="col-md-6" >
 						<h2>Mi cuenta</h2>		
 							
-						Usuario: ${user.username}<br/>
-						Nombre: Karina <br/>
-						Apellido: Pangaro<br/>
-						Fecha de Nacimiento: 20/05/1987
-						<fmt:formatDate value="${user_profile.nacimiento}" pattern="dd/MM/yyyy" /><br/>												
-						Email: kaluli@gmail.com<br/>
+						Usuario: ${user.user}<br/>
+						Nombre: ${user.nombre} <br/>
+						Apellido: ${user.apellido}<br/>
+						Fecha de Nacimiento: 
+						<fmt:formatDate value="${user.nacimiento}" pattern="dd/MM/yyyy" /><br/>												
+						Email: ${user.email}<br/>
 		                Contraseña: ********** <a href="cambiarpassword.html">(Modificar Contraseña)</a><br/>
 		                Último acceso: 
 		              
