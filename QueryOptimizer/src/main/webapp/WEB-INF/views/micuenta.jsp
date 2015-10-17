@@ -24,7 +24,7 @@
 						Fecha de Nacimiento: 
 						<fmt:formatDate value="${user.nacimiento}" pattern="dd/MM/yyyy" /><br/>												
 						Email: ${user.email}<br/>
-		                Contraseña: ********** <a href="cambiarpassword.html">(Modificar Contraseña)</a><br/>
+		                Contraseña: ********** <a href="#">(Modificar Contraseña)</a><br/>
 		                Último acceso: 
 		              
 		  	  	</div>					  
