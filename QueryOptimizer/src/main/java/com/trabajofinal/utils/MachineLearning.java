@@ -98,7 +98,7 @@ public class MachineLearning{
 	}
 
 	public List<RecommendedItem> slopeOne(int userId) {
-		RandomUtils.useTestSeed();
+		//RandomUtils.useTestSeed();
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("localhost");
 		dataSource.setUser("root");
@@ -111,9 +111,7 @@ public class MachineLearning{
 			if (model.getNumItems() > 0){ 
 				
 				DiffStorage diffStorage = new MemoryDiffStorage(model, Weighting.WEIGHTED, false, Long.MAX_VALUE);
-				//RunningAverage average1=diffStorage.getDiff(0,1);
 				
-				//System.out.println("average1: " + average1);
 				Recommender recommender = new SlopeOneRecommender(model,Weighting.WEIGHTED,Weighting.WEIGHTED,diffStorage);
 				
 				//recommend(long userID,int howManyRecommendations)

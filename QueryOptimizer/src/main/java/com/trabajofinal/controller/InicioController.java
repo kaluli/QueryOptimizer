@@ -111,9 +111,7 @@ public class InicioController {
 							if (timeAverageAlternativa < timeAverageOriginal){
 								model.addAttribute("recomendacion", queryAlternativaRecomendada);	
 							} 														
-						}
-						
-						
+						}											
 					}
 				}	
 			}			
@@ -150,8 +148,7 @@ public class InicioController {
 	            		puntajeOriginal = max;						
 	            	}
 					Ranking rankingItem = new Ranking (j,itemConsultaAlternativa,puntajeAlternativa,consulta2.getTime(),consulta.getCreated());
-					rankingService.save(rankingItem);
-					//promedio = consultaService.getTimeAverage(consulta.getQuery());
+					rankingService.save(rankingItem);					
 					Ranking ranking = new Ranking (j,itemId,puntajeOriginal,consulta.getTime(),consulta.getCreated());
 					rankingService.save(ranking);
 	            }
