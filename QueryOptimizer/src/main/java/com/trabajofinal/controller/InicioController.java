@@ -240,7 +240,9 @@ public class InicioController {
 	@RequestMapping(value="/configuracion", method=RequestMethod.GET)	
 	public String configuracion(Model model,  HttpSession session, @RequestParam(value="id", required=false) Integer id, @RequestParam(value="action", required=false) String action) {		
 		User usu = new User();	
-		
+		if (session.getAttribute("userSession") == null){
+			return "redirect:login.html";
+		}
 		String nombre_user = session.getAttribute("userSession").toString();
 		usu = userService.findByUserName(nombre_user);
 		int idlogueado = usu.getId();
