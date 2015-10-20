@@ -16,6 +16,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 	public Item findById(@Param("id") int id);
 
 	@Query("select s from Item s where s.id != :id")	
-	public List<Item> findQueriesAlternativas(@Param("id") int id); 
+	public List<Item> findQueriesAlternativas(@Param("id") int id);
+
+	@Query("select s from Item s where s.query = :item")
+	public Item findByQuery(@Param("item") String item); 
 	
 }

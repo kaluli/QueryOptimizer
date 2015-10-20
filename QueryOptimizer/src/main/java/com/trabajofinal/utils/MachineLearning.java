@@ -26,10 +26,6 @@ import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.recommender.slopeone.DiffStorage;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.mahout.common.RandomUtils;
-import org.apache.mahout.math.RandomAccessSparseVector;
-import org.apache.mahout.math.Vector;
-import org.apache.mahout.vectorizer.encoders.FeatureVectorEncoder;
-import org.apache.mahout.vectorizer.encoders.StaticWordValueEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
@@ -37,7 +33,6 @@ import com.trabajofinal.model.Configuracion;
 import com.trabajofinal.model.Consulta;
 import com.trabajofinal.model.Item;
 import com.trabajofinal.model.Ranking;
-import com.trabajofinal.service.ItemService;
 
 
 public class MachineLearning{
@@ -160,137 +155,7 @@ public class MachineLearning{
 		return result;	
 	}
 			
-	// Con MachineLearning genero items (queries genéricas)
-		public int getItemId(List<String> queryParseada, String consulta){
-			queryParseada = this.parsearQuery(consulta);
-			String currentStatement = queryParseada.get(0); 
-			Boolean where = false; Boolean all = false; Boolean inner = false;
-			Boolean right = false; Boolean join = false; Boolean left = false;
-			Boolean group = false; Boolean having = false; Boolean cross = false;
-			
-			int item = 0; 
-			System.out.println(queryParseada.get(1));
-			if (queryParseada.get(1).contentEquals("term=from")){
-				all = true;
-			}
-			
-			for(int i = 0; i < queryParseada.size(); i++) {
-				// Tiene conditions Item 3, 4, 5, 6
-				switch (queryParseada.get(i)){
-					case "term=where":
-						where = true;
-						break;
-					case "term=inner":
-						inner = true;
-						break;
-					case "term=left":
-						left = true;
-						break;
-					case "term=right":
-						right = true;
-						break;
-					case "term=join":
-						join = true;
-						break;
-					default:
-						break;
-				}
-			}
-						
-			switch (currentStatement){
-			case "term=select":{
-				if ((all == true) && (where == false)){
-					item = 1;
-				}
-				if ((all == false) && (where == false)){
-					item = 2;
-				}
-				if ((all == true) && (where == true)){
-					item = 3;
-				}
-				if ((all == false) && (where == true)){
-					item = 4;
-				}
-				if ((all == true) && (where == true) && (inner == true)){
-					item = 5;
-				}
-				if ((all == false) && (where == false) && (inner == true)){
-					item = 6;
-				}
-				if ((all == false) && (where == true) && (inner == true)){
-					item = 7;
-				}
-				if ((all == true) && (where == true) && (inner == true)){
-					item = 8;
-				}
-				/*if ((all == true) && (where == false) && (inner == true)){
-					item = 9;//anidados
-				}*/
-				/*if ((all == true) && (where == false) && (group == true) && (having == true)){
-					item = 10;
-				}
-				if ((all == false) && (where == false) && (group == true) && (having == true)){
-					item = 11;
-				}*/
-				if ((all == true) && (where == false) && (group == true) && (having == false)){
-					item = 12;
-				}
-				if ((all == false) && (where == false) && (group == true) && (having == false)){
-					item = 13;
-				}
-				if ((all == true) && (where == false) && (left == true)){
-					item = 14;
-				}
-				if ((all == true) && (where == false) && (left == true) && (cross== true)){
-					item = 15;
-				}
-				if ((all == false) && (where == false) && (left == true) && (cross== false)){
-					item = 16;
-				}
-				if ((all == true) && (where == false) && (right == true)){
-					item = 17;
-				}
-				if ((all == false) && (where == false) && (right == true)){
-					item = 18;
-				}
-				if ((all == false) && (inner == true) && (group == true)){
-					item = 19;
-				}
-				if ((all == true) && (inner == true) && (where == true) && (group == true)){
-					item = 20;
-				}
-				System.out.println("Item: " + item);
-			
-			}	
-			break;
-			case "term=insert":{				
-			}
-			break;
-			case "term=update":
-				break;
-			case "term=delete":
-				break;
-			case "term=alter":
-				break;
-			case "term=drop":
-				break;
-			case "term=create":
-				break;
-			case "term=use":
-				break;
-			case "term=show":
-				System.out.println("entra");
-				break;
-			default:
-				break;
-			}
-					
-			for(int i = 0; i < queryParseada.size(); i++) {
-	            System.out.println(queryParseada.get(i));
-	        }
-			return item;
-		}
-	
+		
 	public float crearRankingId(List <Ranking> rankings, Item item) {		
 		for(int i = 0; i < rankings.size(); i++) {
 		    
@@ -328,6 +193,65 @@ public class MachineLearning{
 
 	public void setConsulta(String consulta) {
 		this.consulta = consulta;
+	}
+
+	public String generalizarQuery(List<String> parametrosQuery) {
+		StringBuffer queryGeneralizada = new StringBuffer();
+		parametrosQuery = this.parsearQuery(consulta);
+		String currentStatement = parametrosQuery.get(0);
+		int j = 1;
+		queryGeneralizada.append(currentStatement.substring(5)); //Quita el term
+		
+		if (currentStatement.contentEquals(currentStatement)){				
+			if (parametrosQuery.get(1).contentEquals("term=from")){			
+				queryGeneralizada.append(" *");
+			}
+			else{
+				queryGeneralizada.append(" %keyfields%");							
+			}
+			
+			for(int i = 1; i < parametrosQuery.size(); i++) {
+				switch (parametrosQuery.get(i)){
+					case "term=from":{
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
+						queryGeneralizada.append(" %table%");					
+					}
+					break;				
+					case "term=where":
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
+						queryGeneralizada.append(" %conditions%");
+						break;
+					case "term=inner":
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
+						break;
+					case "term=left":
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
+						break;
+					case "term=right":
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
+						break;
+					case "term=join":
+						j++;
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));
+						queryGeneralizada.append(" %table" + j + "%");
+						queryGeneralizada.append(" on %conditions" + j + "%");
+						break;
+					case "term=group":
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
+						queryGeneralizada.append(" by" + " %groupcolumn%");
+						break;
+					case "term=having":
+						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
+						queryGeneralizada.append(" %havingcondition%");
+						break;					
+					default:
+						break;
+				}
+			}
+			//queryGeneralizada.append(";");
+			
+		}
+		return queryGeneralizada.toString();
 	}
 		
 

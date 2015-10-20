@@ -75,6 +75,7 @@ public class InicioController {
 
 	@RequestMapping(value="/inicio", method=RequestMethod.POST)
 	public String inicio(@RequestParam("query") String query, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
+		int itemId;
     	Date date = new Date();
     	Database database = new Database();
     	if (session.getAttribute("userSession") == null){
@@ -89,9 +90,22 @@ public class InicioController {
 		consultaService.save(consulta);
 		
 		MachineLearning machineLearning = new MachineLearning(consulta, config);
+		
 		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());
+		
 		List<String> queryParseada = machineLearning.parsearQuery(consulta.getQuery());
-		int itemId = machineLearning.getItemId(queryParseada, consulta.getQuery());
+		
+		//int itemId = machineLearning.getItemId(queryParseada, consulta.getQuery());
+		String queryGeneralizada = machineLearning.generalizarQuery(queryParseada);
+		Item item = itemService.findByQuery(queryGeneralizada);
+		if (item == null){
+			Item nuevoItem = new Item(queryGeneralizada,date);
+			itemService.save(nuevoItem);
+			itemId = nuevoItem.getId();			
+		}else{
+			 itemId = item.getId();
+		}
+		
 		model.addAttribute("recomendacion", "No hay recomendaciones");
 		if (itemId != 0){
 			List<Item> queriesAlternativas = itemService.findQueriesAlternativas(itemId);
@@ -136,7 +150,7 @@ public class InicioController {
             Consulta consulta2 = new Consulta(queryAlternativa, consulta.getIduser(),consulta.getIdconfig(),consulta.getCreated());
             int itemConsultaAlternativa = queriesAlternativas.get(i).getId();
             
-            for(int j = 2; j < 50; j++){
+            for(int j = 2; j < 10; j++){
 	            if (this.compararQueries(config, consulta, consulta2, itemId, queriesAlternativas.get(i).getId()) == true){
 	            	if (consulta2.getTime() < consulta.getTime()){
 	            		// La alternativa es mejor

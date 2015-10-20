@@ -23,6 +23,11 @@ public class ItemServiceImpl implements ItemService {
 	}
 	
 	@Transactional
+	public Item findByQuery(String item) {
+		return itemRepository.findByQuery(item);
+	}
+	
+	@Transactional
 	public List<Item> findAll() {
 		return itemRepository.findAll();
 	}
