@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -27,6 +28,7 @@ import org.apache.mahout.cf.taste.recommender.slopeone.DiffStorage;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.mahout.common.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.trabajofinal.model.Configuracion;
@@ -197,10 +199,10 @@ public class MachineLearning{
 
 	public String generalizarQuery(List<String> parametrosQuery) {
 		StringBuffer queryGeneralizada = new StringBuffer();
-		parametrosQuery = this.parsearQuery(consulta);
+		//parametrosQuery = this.parsearQuery(consulta);
 		String currentStatement = parametrosQuery.get(0);
 		int j = 1;
-		
+		System.out.println(parametrosQuery);
 		if (currentStatement.contentEquals("term=select")){
 			queryGeneralizada.append(currentStatement.substring(5)); //Quita el term			
 			if (parametrosQuery.get(1).contentEquals("term=from")){			
@@ -210,7 +212,7 @@ public class MachineLearning{
 				queryGeneralizada.append(" %keyfields%");							
 			}
 			
-			for(int i = 1; i < parametrosQuery.size(); i++) {
+			for(int i = 1; i < parametrosQuery.size(); i++) {				
 				switch (parametrosQuery.get(i)){
 					case "term=from":{
 						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
@@ -219,7 +221,7 @@ public class MachineLearning{
 					break;				
 					case "term=where":
 						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
-						queryGeneralizada.append(" %conditions%");
+						queryGeneralizada.append(" %conditions%");						
 						break;
 					case "term=inner":
 						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
@@ -247,10 +249,29 @@ public class MachineLearning{
 					default:
 						break;
 				}
-			}
-			//queryGeneralizada.append(";");
-			
+			}						
 		}
+		
+		return queryGeneralizada.toString();
+	}
+
+	public String generalizarSelectAnidados(String query, int cantidad) {
+		StringBuffer queryGeneralizada = new StringBuffer();
+		List<String> parametrosQuery = null;
+		String queryAux;
+		
+		String[] queryAnidada = query.split(Pattern.quote("("));
+		
+		for(int i = 0; i < queryAnidada.length; i++){			
+			parametrosQuery = this.parsearQuery(queryAnidada[i]);
+			queryAux = this.generalizarQuery(parametrosQuery);
+			if (i != 0){
+				queryGeneralizada.append(" (");
+				queryAux = queryAux.replace("%keyfields%","%keyfields" + (i+1) + "%").replace("%conditions%","%conditions" + (i+1) + "%").replace("%table%","%table" + (i+1) + "%");
+			}				
+			queryGeneralizada.append(queryAux);									
+		}
+		queryGeneralizada.append(")");		
 		return queryGeneralizada.toString();
 	}
 		

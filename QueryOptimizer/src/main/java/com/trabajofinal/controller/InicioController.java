@@ -13,6 +13,7 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -76,6 +77,7 @@ public class InicioController {
 	@RequestMapping(value="/inicio", method=RequestMethod.POST)
 	public String inicio(@RequestParam("query") String query, @RequestParam("cantUsuarios") int cantUsuarios, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
 		int itemId;		
+		String queryGeneralizada = null;
     	Date date = new Date();
     	Database database = new Database();
     	if (session.getAttribute("userSession") == null){
@@ -89,14 +91,17 @@ public class InicioController {
 		model.addAttribute("resultados", resultados);		
 		consultaService.save(consulta);
 		
-		MachineLearning machineLearning = new MachineLearning(consulta, config);
-		
-		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());
-		
-		List<String> queryParseada = machineLearning.parsearQuery(consulta.getQuery());
-		
-		//int itemId = machineLearning.getItemId(queryParseada, consulta.getQuery());
-		String queryGeneralizada = machineLearning.generalizarQuery(queryParseada);
+		MachineLearning machineLearning = new MachineLearning(consulta, config);		
+		Double timeAverage = consultaService.getTimeAverage(consulta.getQuery());		
+		List<String> queryParseada = machineLearning.parsearQuery(consulta.getQuery());		
+		int occurance = StringUtils.countOccurrencesOf(consulta.getQuery().toLowerCase(), "select");
+		// Select anidados
+		if (occurance > 1){
+			queryGeneralizada = machineLearning.generalizarSelectAnidados(consulta.getQuery(),occurance);
+		}		
+		else{
+			queryGeneralizada = machineLearning.generalizarQuery(queryParseada);
+		}
 		Item item = itemService.findByQuery(queryGeneralizada);
 		model.addAttribute("recomendacion", "No hay recomendaciones");
 		
@@ -144,8 +149,7 @@ public class InicioController {
 		String keyFields = this.crearFields(config,queryParseada,consulta).get("keyFields").toString();
 		String conditions = this.crearFields(config,queryParseada,consulta).get("conditions").toString();
 		String group = this.crearFields(config,queryParseada,consulta).get("group").toString();
-		
-		Double promedio;
+			
 		Float max = 5f; Float min = 1f; Float puntajeAlternativa; Float puntajeOriginal;
 		rankingService.deleteAll();
 		for(int i = 0; i < queriesAlternativas.size(); i++) {
@@ -181,8 +185,9 @@ public class InicioController {
 		String keyFields = fields.get("keyFields").toString();
 		String conditions = fields.get("conditions").toString();
 		String group = fields.get("group").toString();
+		String joins = fields.get("joins").toString();
 		
-		queryAlternativaRecomendada = queryAlternativaRecomendada.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions).replace("%group%", group);
+		queryAlternativaRecomendada = queryAlternativaRecomendada.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions).replace("%joins%", joins).replace("%group%", group);
 		return queryAlternativaRecomendada;
 	}	
 	
@@ -228,7 +233,8 @@ public class InicioController {
 						}
 						case "term=join":{						
 							i++;
-							//joins = joins + consulta.getQuery().substring(index + "join".length(), consulta.getQuery().length());									
+							joins = joins + "join";
+							//+ consulta.getQuery().substring(5);									
 							System.out.println(joins);
 							break;
 						}	  
@@ -280,6 +286,7 @@ public class InicioController {
 		fields.put("keyFields", keyFields);
 		fields.put("table", table);
 		fields.put("conditions", conditions);
+		fields.put("joins", joins);
 		fields.put("group", group);
 		
 			}
