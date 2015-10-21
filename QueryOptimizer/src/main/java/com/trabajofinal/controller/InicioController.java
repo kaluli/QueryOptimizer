@@ -74,8 +74,8 @@ public class InicioController {
 	}
 
 	@RequestMapping(value="/inicio", method=RequestMethod.POST)
-	public String inicio(@RequestParam("query") String query, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
-		int itemId;
+	public String inicio(@RequestParam("query") String query, @RequestParam("cantUsuarios") int cantUsuarios, @RequestParam("configId") Integer configId, @Valid @ModelAttribute("usuario") User usuario, BindingResult result, Model model, HttpSession session) {
+		int itemId;		
     	Date date = new Date();
     	Database database = new Database();
     	if (session.getAttribute("userSession") == null){
@@ -98,59 +98,64 @@ public class InicioController {
 		//int itemId = machineLearning.getItemId(queryParseada, consulta.getQuery());
 		String queryGeneralizada = machineLearning.generalizarQuery(queryParseada);
 		Item item = itemService.findByQuery(queryGeneralizada);
-		if (item == null){
-			Item nuevoItem = new Item(queryGeneralizada,date);
-			itemService.save(nuevoItem);
-			itemId = nuevoItem.getId();			
-		}else{
-			 itemId = item.getId();
-		}
-		
 		model.addAttribute("recomendacion", "No hay recomendaciones");
-		if (itemId != 0){
-			List<Item> queriesAlternativas = itemService.findQueriesAlternativas(itemId);
-			entrenarModelo(resultados, queriesAlternativas ,queryParseada, config, consulta,itemId);
-			Ranking nuevoRanking = new Ranking(usu.getId(),itemId,(float)1,timeAverage,date); // 1 el ranking más bajo por defecto
-			rankingService.save(nuevoRanking);
-			List<RecommendedItem> recomendaciones = machineLearning.gestionarRanking(database, consulta, nuevoRanking, itemService.findById(nuevoRanking.getItemId()));
-			if (recomendaciones.size() > 0){
-				for (RecommendedItem recommendation : recomendaciones) {	
-					if (recommendation.getValue() > 0){
-						//this.compararQueries(config, resultados, consulta, consulta2, itemId, queriesAlternativas.get(i).getId());
-						String queryAlternativaRecomendada = this.crearQueryAlternativa(config, consulta, itemService.findById((int)recommendation.getItemID()).getQuery(), this.crearFields(config, queryParseada, consulta));
-						Consulta queryAlternativa = new Consulta(queryAlternativaRecomendada,consulta.getIduser(),consulta.getIdconfig(),date);
-						if (this.compararQueries(config, consulta,queryAlternativa, itemId,(int)recommendation.getItemID()) == true){
-							double timeAverageAlternativa = rankingService.getTimeAverage((int)recommendation.getItemID());
-							double timeAverageOriginal = rankingService.getTimeAverage(itemId);
-							if (timeAverageAlternativa < timeAverageOriginal){
-								model.addAttribute("recomendacion", queryAlternativaRecomendada);	
-							} 														
-						}											
-					}
-				}	
-			}			
+		
+		if (queryGeneralizada.length() > 0){
+			if (item == null){
+				Item nuevoItem = new Item(queryGeneralizada,date);
+				itemService.save(nuevoItem);
+				itemId = nuevoItem.getId();			
+			}else{
+				 itemId = item.getId();
+			}
 			
-		}	
-		model.addAttribute("consulta", consulta);
-		model.addAttribute("user", usu);		
+			if (itemId != 0){
+				List<Item> queriesAlternativas = itemService.findQueriesAlternativas(itemId);
+				entrenarModelo(resultados, cantUsuarios, queriesAlternativas ,queryParseada, config, consulta,itemId);
+				Ranking nuevoRanking = new Ranking(usu.getId(),itemId,(float)1,timeAverage,date); // 1 el ranking más bajo por defecto
+				rankingService.save(nuevoRanking);
+				List<RecommendedItem> recomendaciones = machineLearning.gestionarRanking(database, consulta, nuevoRanking, itemService.findById(nuevoRanking.getItemId()));
+				if (recomendaciones.size() > 0){
+					for (RecommendedItem recommendation : recomendaciones) {	
+						if (recommendation.getValue() > 0){
+							String queryAlternativaRecomendada = this.crearQueryAlternativa(config, consulta, itemService.findById((int)recommendation.getItemID()).getQuery(), this.crearFields(config, queryParseada, consulta));
+							Consulta queryAlternativa = new Consulta(queryAlternativaRecomendada,consulta.getIduser(),consulta.getIdconfig(),date);
+							if (this.compararQueries(config, consulta,queryAlternativa, itemId,(int)recommendation.getItemID()) == true){
+								double timeAverageAlternativa = rankingService.getTimeAverage((int)recommendation.getItemID());
+								double timeAverageOriginal = rankingService.getTimeAverage(itemId);
+								if (timeAverageAlternativa < timeAverageOriginal){
+									model.addAttribute("recomendacion", queryAlternativaRecomendada);	
+								} 														
+							}											
+						}
+					}	
+				}			
+				
+			}	
+		}
+			model.addAttribute("consulta", consulta);
+			model.addAttribute("user", usu);		
 		return "inicio";    	    	
 	}		
 	
-	private void entrenarModelo(List<Map<String, Object>> resultados, List<Item> queriesAlternativas,List<String> queryParseada, Configuracion config, Consulta consulta, int itemId){		
+	private void entrenarModelo(List<Map<String, Object>> resultados, int cantUsuarios, List<Item> queriesAlternativas,List<String> queryParseada, Configuracion config, Consulta consulta, int itemId){		
 		String queryAlternativa = null;		
 		String table = this.crearFields(config,queryParseada,consulta).get("table").toString();
 		String keyFields = this.crearFields(config,queryParseada,consulta).get("keyFields").toString();
 		String conditions = this.crearFields(config,queryParseada,consulta).get("conditions").toString();
+		String group = this.crearFields(config,queryParseada,consulta).get("group").toString();
+		
 		Double promedio;
 		Float max = 5f; Float min = 1f; Float puntajeAlternativa; Float puntajeOriginal;
 		rankingService.deleteAll();
 		for(int i = 0; i < queriesAlternativas.size(); i++) {
             queryAlternativa = queriesAlternativas.get(i).getQuery();
-            queryAlternativa = queryAlternativa.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions);            
+			queryAlternativa = queryAlternativa.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions).replace("%group%", group);
+			System.out.println(queryAlternativa);
             Consulta consulta2 = new Consulta(queryAlternativa, consulta.getIduser(),consulta.getIdconfig(),consulta.getCreated());
             int itemConsultaAlternativa = queriesAlternativas.get(i).getId();
             
-            for(int j = 2; j < 10; j++){
+            for(int j = 2; j < cantUsuarios; j++){ // Cantidad de usuarios
 	            if (this.compararQueries(config, consulta, consulta2, itemId, queriesAlternativas.get(i).getId()) == true){
 	            	if (consulta2.getTime() < consulta.getTime()){
 	            		// La alternativa es mejor
@@ -175,8 +180,9 @@ public class InicioController {
 		String table = fields.get("table").toString();
 		String keyFields = fields.get("keyFields").toString();
 		String conditions = fields.get("conditions").toString();
+		String group = fields.get("group").toString();
 		
-		queryAlternativaRecomendada = queryAlternativaRecomendada.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions);
+		queryAlternativaRecomendada = queryAlternativaRecomendada.replace("%table%", table).replace("%keyfields%", keyFields).replace("%conditions%", conditions).replace("%group%", group);
 		return queryAlternativaRecomendada;
 	}	
 	
@@ -184,56 +190,101 @@ public class InicioController {
 		Database database = new Database();
 		Map<String,Object> fields = new HashMap<String,Object>();
 		List<String> keyFieldsArray = new ArrayList<String>();
-		String table = ""; String conditions = ""; String keyFields = "";
+		List<String> joinsArray = new ArrayList<String>();
+		String table = ""; String conditions = ""; String keyFields = ""; String joins = ""; String group = "";  
 	
 		switch (queryParseada.get(0)){
 			case "term=select":{			
 				for(int i = 0; i < queryParseada.size(); i++) { 
 					// *** TABLE
-					if (queryParseada.get(i).contentEquals("term=from")){
-						i++;						
-						table = queryParseada.get(i).substring(5); //Quita el term=
-						int index = consulta.getQuery().toLowerCase().indexOf(table); //Para caseSensitive
-						table = consulta.getQuery().substring(index, index + table.length());						
+					switch (queryParseada.get(i)){
+						case "term=from":{
+							i++;						
+							table = queryParseada.get(i).substring(5); //Quita el term=
+							int index = consulta.getQuery().toLowerCase().indexOf(table); //Para caseSensitive
+							table = consulta.getQuery().substring(index, index + table.length());																					  
+							break;
+						}						
+						// *** CONDITIONS
+						case "term=where":{
+							i++;
+							int index = consulta.getQuery().indexOf("where");
+							conditions = consulta.getQuery().substring(index + "where".length(), consulta.getQuery().length());
+							conditions = conditions.replace(";", " ");				
+							System.out.println(conditions);
+							break;
+						}		
+						case "term=inner":{						
+							joins = queryParseada.get(i).substring(5); // Pone inner sin term						
+							break;
+						}	  
+						case "term=left":{						
+							joins = queryParseada.get(i).substring(5); // Pone left sin term
+							break;
+						}
+						case "term=right":{						
+							joins = queryParseada.get(i).substring(5); // Pone right sin term
+							break;
+						}
+						case "term=join":{						
+							i++;
+							//joins = joins + consulta.getQuery().substring(index + "join".length(), consulta.getQuery().length());									
+							System.out.println(joins);
+							break;
+						}	  
+						case "term=distinct":{						
+							i++; 							
+							group = queryParseada.get(i).substring(5);
+							break;
+						}
+						case "term=group":{						
+							i++; 							
+							group = "group by" + queryParseada.get(i).substring(5);   
+							System.out.println(group);
+							break;
+						}
+						case "term=having":{						
+						
+							break;
+						}
+						default:
+							break;
 					}
-					// *** CONDITIONS
-					if (queryParseada.get(i).contentEquals("term=where")){						
-						i++;
-						int index = consulta.getQuery().indexOf("where");
-						conditions = consulta.getQuery().substring(index + "where".length(), consulta.getQuery().length());
-						conditions = conditions.replace(";", " ");			
-
-						System.out.println(conditions);
-					}	         
-					if (queryParseada.get(i).contentEquals("term=inner join")){						
-						i++;
-						int index = consulta.getQuery().indexOf("where");
-						conditions = consulta.getQuery().substring(index + "where".length(), consulta.getQuery().length());
-						conditions = conditions.replace(";", " ");			
-
-						System.out.println(conditions);
-					}	         
 				}
-			break;
+			
+			
+		// *** KEYFIELDS
+		if (queryParseada.get(1).contentEquals("term=from")){ // * todos los keyfields			
+			List<Map<String, Object>> results = database.traerKeyFields(database, config, table);
+			for (Map<String, Object> result : results) {
+		        HashMap<String, Object> map = (HashMap<String, Object>) result;
+		        for (Object key : map.keySet()) {
+		        	System.out.println(map.get(key).toString());
+		        	keyFieldsArray.add(map.get(key).toString());	                
+		        }	        
+		    }
+										
+		}
+		else{
+			for(int i = 1; !queryParseada.get(i).contentEquals("term=from") ; i++) { 
+				if (!queryParseada.get(i).contentEquals("term=distinct")){ 
+					keyFieldsArray.add(queryParseada.get(i).substring(5));	
+				}
 			}
 		}
-		// *** KEYFIELDS
-		List<Map<String, Object>> results = database.traerKeyFields(database, config, table);
-		for (Map<String, Object> result : results) {
-	        HashMap<String, Object> map = (HashMap<String, Object>) result;
-	        for (Object key : map.keySet()) {
-	        	System.out.println(map.get(key).toString());
-	        	keyFieldsArray.add(map.get(key).toString());	                
-	        }	        
-	    }			
-		keyFields = keyFieldsArray.toString().replace("[", " ").replace("]", " ");			
-		System.out.println(keyFields);
+		
+		keyFields = keyFieldsArray.toString().replace("[", " ").replace("]", " ");	
 		
 		//*** EXTRAS -> GROUP BY, ORDER BY, HAV
 		
 		fields.put("keyFields", keyFields);
 		fields.put("table", table);
 		fields.put("conditions", conditions);
+		fields.put("group", group);
+		
+			}
+			break;
+		}
 		
 		return fields;
 	}		

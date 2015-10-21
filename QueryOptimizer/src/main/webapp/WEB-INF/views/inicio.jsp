@@ -21,7 +21,12 @@
 							<option value="${config.id}" >${config.name}</option>
 						    </c:forEach>
 							</select>
-						</div>				
+						</div>		
+						<div>Cantidad de Usuarios: 
+							<input type="radio" value="2" name="cantUsuarios" required> 2
+							<input type="radio" value="50"  name="cantUsuarios" required> 50
+							<input type="radio" value="100"  name="cantUsuarios" required> 100
+						</div>		
 						<h3>Analizar Consulta SQL</h3>
 						<div class="buttons">
 							<div class="btn-group">
@@ -45,7 +50,8 @@
 						</div>			
 						<div class="query-box">
 							<textarea name="query" id="query" class="form-control" rows="5" required></textarea>																		  	
-						</div>					
+						</div>			
+								
 						<div id="right">
 							<button type="submit" class="btn btn-primary">Analizar</button>
 						</div>

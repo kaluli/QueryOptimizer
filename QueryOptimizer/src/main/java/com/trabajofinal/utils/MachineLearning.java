@@ -200,9 +200,9 @@ public class MachineLearning{
 		parametrosQuery = this.parsearQuery(consulta);
 		String currentStatement = parametrosQuery.get(0);
 		int j = 1;
-		queryGeneralizada.append(currentStatement.substring(5)); //Quita el term
 		
-		if (currentStatement.contentEquals(currentStatement)){				
+		if (currentStatement.contentEquals("term=select")){
+			queryGeneralizada.append(currentStatement.substring(5)); //Quita el term			
 			if (parametrosQuery.get(1).contentEquals("term=from")){			
 				queryGeneralizada.append(" *");
 			}
@@ -238,7 +238,7 @@ public class MachineLearning{
 						break;
 					case "term=group":
 						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
-						queryGeneralizada.append(" by" + " %groupcolumn%");
+						queryGeneralizada.append(" by" + " %group%");
 						break;
 					case "term=having":
 						queryGeneralizada.append(" " + parametrosQuery.get(i).substring(5));						
