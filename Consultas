@@ -1,0 +1,14 @@
+Recomendación: select countrycode from City group by countrycode
+Consulta: SELECT DISTINCT CountryCode FROM City order by Countrycode
+
+Recomendación: select ID, Name, CountryCode, District, Population from City
+Consulta: SELECT * FROM City;
+
+Recomendación: select ID, Name, CountryCode, District, Population from City where id = 5
+Consulta: SELECT * FROM City where id = 5;
+
+
+
+
+Show slow queries
+ /var/log/mysql/mysql-slow.log

@@ -26,6 +26,7 @@
 							<input type="radio" value="2" name="cantUsuarios" required> 2
 							<input type="radio" value="50"  name="cantUsuarios" required> 50
 							<input type="radio" value="100"  name="cantUsuarios" required> 100
+							<input type="radio" value="300"  name="cantUsuarios" required> 300
 						</div>		
 						<h3>Analizar Consulta SQL</h3>
 						<div class="buttons">
